@@ -6,8 +6,15 @@
 				
 				if (is.null(ga.json)) { stop('data fetching did not output correct format'); }
 				
-				ga.df <- as.data.frame(do.call(rbind, ga.json$items)); # convert to data.frame
-				return(ga.df[keep]);
+				# build data frame
+				# get observation with the most columns (this will define the data frame):
+				max <- ga.json$items[sapply(ga.json$items, length) == max(sapply(ga.json$items, length))][1];
+				n <- names(as.data.frame(do.call(rbind, max)));
+
+				df <- as.data.frame(do.call(rbind, lapply(lapply(ga.json$items, unlist), "[", unique(unlist(c(sapply(ga.json$items,names)))))))
+				names(df) <- n;
+				
+				return(df[keep]);
 			},
 			getAccounts = function(start=1, max=1000) {
 				url <- paste('https://www.googleapis.com/analytics/v3/management/accounts',
@@ -31,6 +38,7 @@
 							 '&start-index=', start,
 							 '&max-results=', max,
 							 sep='', collapse='');
+				# possible deparse.error, sapply(test$items,length)
 				return(.self$processManagementData(url, c('id', 'accountId', 'webPropertyId', 'name', 'currency', 'timezone', 'eCommerceTracking', 'websiteUrl', 'created', 'updated')));
 			},
 			getGoals = function(accountId = '~all', webPropertyId = '~all', profileId = '~all', start=1, max=1000) { # FIX: deparse error

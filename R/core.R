@@ -7,6 +7,14 @@
 							   start = 1, max = 1000, last.days, date.format = '%Y-%m-%d', 
 							   output.raw, output.formats, rbr = F) {
 
+				if (missing(ids)) {
+					stop('please enter a profile ID');
+				}
+
+				if (!as.logical(length(as.numeric(grep('ga:', ids))))) {
+					ids <- paste('ga:', ids, sep = '');
+				}
+
 				url <- paste('https://www.googleapis.com/analytics/v3/data/ga',
                				 '?access_token=', .self$getToken()$access_token,
                			  	 '&ids=', ids,
@@ -36,7 +44,7 @@
 	  
 	  		  	# output error and stop
 				if (!is.null(ga.data$error)) {
-					stop(paste('Error in fetching data: ', ga.data$error$message,  sep=''))
+					stop(paste('error in fetching data: ', ga.data$error$message,  sep=''))
 				}
       
 	  		  	# get column names
@@ -56,7 +64,7 @@
 				ga.data.df <- as.data.frame(do.call(rbind, ga.data$rows)); 
 				
 				ga.data.df <- data.frame(lapply(ga.data.df, as.character), stringsAsFactors=F); # convert to characters
-				ga.headers$name <- sub('ga:', '', ga.headers$name);
+				ga.headers$name <- sub('ga:', '', ga.headers$name); # remove ga: from column headers
       
 				names(ga.data.df) <- ga.headers$name; # insert column names
       		  	
@@ -80,31 +88,6 @@
       
       
 				return(ga.data.df);
-  
-				#if (fix.format) {
-				#	int <- c('hour', 'visits', 'visitors', 'newVisits', 
-				#			 'daysSinceLastVisit', 'visitCount', 'transactionRevenue',
-				#			 'bounces', 'timeOnSite', 'entranceBounceRate', 'visitBounceRate',
-				#			 'avgTimeOnSite', 'organicSearches', 'adSlotPosition', 'impressions',
-				#			 'adClicks', 'adCost', 'CPM', 'CPC', 'CTR', 'costPerTransaction',
-				#			 'costPerGoalConversion', 'costPerConversion', 'RPC', 'ROI',
-				#			 'margin', 'goal', 'latitude', 'longitude', 'socialActivityTimestamp',
-				#			 'socialActivities', 'pageDepth', 'entrances', 'pageviews', 
-				#			 'uniquePageviews', 'timeOnPage', 'exits', 'entranceRate', 
-				#			 'pageviewsPerVisit', 'avgTimeOnPage', 'exitRate', 'searchResultViews',
-				#			 'searchUniques', 'searchVisits', 'searchDepth', 'searchRefinements',
-				#			 'searchDuration', 'searchExits', 'avgSearchResultViews', 
-				#			 'percentVisitsWithSearch', 'avgSearchDepth', 'avgSearchDuration',
-				#			 'searchExitRate', 'searchGoal', 'goalValueAllPerSearch')
-                #
-				#	# stupid stupid solution - fix, do vector
-				#	for(i in 1:length(names(ga.data.df))) {
-				#		if (names(ga.data.df)[i] %in% int) {
-				#			ga.data.df[[i]] <- as.numeric(ga.data.df[[i]])
-				#		}
-				#	}
-				#}
-  
 				
 			},
 			getFirstDate = function(ids) {
