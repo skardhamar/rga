@@ -2,6 +2,8 @@
 
 This is a package for extracting data from Google Analytics into R.
 
+The package uses OAuth 2.0 ([protocol](http://tools.ietf.org/html/draft-ietf-oauth-v2-22)) to access Google APIs
+
 ## Installation
 
 ### CRAN
