@@ -8,7 +8,7 @@
 							   output.raw, output.formats, rbr = F) {
 
 				if (missing(ids)) {
-					stop('please enter a profile ID');
+					stop('please enter a profile id');
 				}
 
 				if (!as.logical(length(as.numeric(grep('ga:', ids))))) {
@@ -63,32 +63,39 @@
 				# convert to data.frame
 				ga.data.df <- as.data.frame(do.call(rbind, ga.data$rows)); 
 				
-				ga.data.df <- data.frame(lapply(ga.data.df, as.character), stringsAsFactors=F); # convert to characters
+				ga.data.df <- data.frame(lapply(ga.data.df, as.character), stringsAsFactors = F); # convert to characters
 				ga.headers$name <- sub('ga:', '', ga.headers$name); # remove ga: from column headers
       
 				names(ga.data.df) <- ga.headers$name; # insert column names
       		  	
+      		  	if ('date' %in% names(ga.data.df)) {
+					# mos-def optimize
+					ga.data.df$'date' <- as.Date(format(as.Date(ga.data.df$'date', '%Y%m%d'), date.format), format=date.format);
+				}
+
 				# find formats
 				formats <- as.data.frame(do.call(rbind, ga.data$columnHeaders));
 				
 				# convert to r friendly
 				formats$name <- sub('ga:', '', formats$name);
+				formats$columnType <- tolower(formats$columnType);
 				formats$dataType[formats$dataType == 'STRING'] <- 'character';
-				formats$dataType[formats$dataType == 'INTEGER'] <- 'integer';
+				formats$dataType[formats$dataType == 'INTEGER'] <- 'numeric';
+				formats$dataType[formats$dataType == 'PERCENT'] <- 'numeric';
+				formats$dataType[formats$dataType == 'TIME'] <- 'numeric';
 				formats$dataType[formats$name == 'date'] <- 'Date';
 	  		  
+	  		  	for (i in 1:nrow(formats)) {
+	  		 		column <- formats$name[i];
+	  		 		class <- formats$dataType[[i]];
+	  		 		ga.data.df[[column]] <- as(ga.data.df[[column]], class);
+	  		  	}
+
 				if (!missing(output.formats)) {
 					assign(output.formats, formats, envir = .GlobalEnv);
 				}
-			  
-				if ('date' %in% names(ga.data.df)) {
-					# mos-def optimize
-					ga.data.df$'date' <- as.Date(format(as.Date(ga.data.df$'date', '%Y%m%d'), date.format), format=date.format);
-				}
-      
       
 				return(ga.data.df);
-				
 			},
 			getFirstDate = function(ids) {
 				first <- .self$getData(ids,
