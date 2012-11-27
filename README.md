@@ -14,6 +14,8 @@ Currently not on CRAN.
 
 Download from GitHub.
 
+	install.packages('https://github.com/skardhamar/rga/blob/master/rga_0.5.tar.gz?raw=true')
+
 ## Usage
 
 The principle of this package is to create an instance of the API Authentication, which is a S4/5-class (utilizing the setRefClass). This instance then contains all the functions needed to extract data, and all the data needed for the authentication and reauthentication. The class is in essence self sustaining.
