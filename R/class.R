@@ -1,0 +1,86 @@
+.define.rga <- function(envir = .GlobalEnv) {
+	rga <<- setRefClass('rga',
+		where = envir,
+		fields = list(
+			'client.id' = 'character', 
+			'client.secret' = 'character',
+			'where' = 'character',
+			'token' = 'list'),
+		methods = list(
+			initialize = function(client.id, client.secret, where, token) {
+				.self$where <- where;
+				.self$client.id <- client.id;
+				.self$client.secret <- client.secret;
+				.self$setToken(token, initiate=T);
+				return(.self);
+			},
+			prepare = function() {
+				if (.self$isTokenExpired()) {
+					.self$refreshToken();
+				}
+			},
+			isToken = function() {
+				if (!is.null(.self$token)) {
+					return(T);
+				} else {
+					return(F);
+				}
+			},
+			isTokenExpired = function() {
+				if (.self$isToken()) {
+					if (.self$tokenExpiresIn() <= 0) {
+						return(T);
+					} else {
+						return(F);
+					}
+				} else {
+					stop('token is not created');
+				}
+			},
+			tokenExpiresIn = function() {
+				if (.self$isToken()) {
+					return(.self$token$expires_in - (as.numeric(Sys.time()) - .self$token$timestamp.refresh))
+				} else {
+					stop('token is not created');
+				}
+			},
+			setToken = function(token, initiate = F) {
+				.self$token <- token;
+				if (.self$isWhere() && !initiate) {
+					saveRDS(.self, file = .self$where);
+				}
+			},
+			getToken = function(refresh = T) {
+				if (.self$isToken()) {
+					if (.self$isTokenExpired() && refresh) {
+						.self$refreshToken()
+					}
+					return(.self$token);
+				} else {
+					stop('token is not created');
+				}
+			},
+			refreshToken = function() { 
+				raw.data <- postForm('https://accounts.google.com/o/oauth2/token', 
+									 refresh_token = .self$token$refresh_token, 
+									 client_id = .self$client.id,
+									 client_secret = .self$client.secret,
+									 grant_type = 'refresh_token', 
+									 style = 'POST');
+                
+				# remember to pass refresh token
+				
+				token.data <- fromJSON(raw.data);
+				now <- as.numeric(Sys.time());
+				.self$setToken(c(token.data, refresh_token = .self$token$refresh_token, timestamp = c('first' = .self$token$timestamp.first, 'refresh' = now)));
+			},
+			isWhere = function() { # converts a string to a boolean
+				if (nchar(.self$where) != 0) {
+					return(T);
+				} else {
+					return(F);
+				}
+			}
+		)
+	);
+}

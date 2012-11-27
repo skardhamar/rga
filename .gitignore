@@ -1,0 +1,12 @@
+# rstudio ide package management
+.Rbuildignore
+.Rhistory
+.Rproj.user
+
+.DS_store
+rga.Rproj
+*.csv
+*.rga
+
+# artifacts
+unsampled-lp-goal-telia.R
