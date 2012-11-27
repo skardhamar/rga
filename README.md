@@ -12,12 +12,7 @@ Currently not on CRAN.
 
 ### Manually
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Download from GitHub.
 
 ## Usage
 
@@ -25,5 +20,15 @@ The principle of this package is to create an instance of the API Authentication
 
 The instance is created with the `rga.open` command:
 
+	// create instance
 	rga.open(instance="ga")
+
+This will check if the instance is already created, and if it is, it'll prepare the token. If the instance is not created, it'll create the instance, and redirect the client to a browser for authentication with Google.
+
+# Advanced use
+
+If you want to store the instance locally, this can be done by adding the `where` attribute:
+
+	// create a local instance
+	rga.open(instance="ga", where="~/ga.rga")
 
