@@ -5,14 +5,13 @@
 							   end.date = format(Sys.time(), "%Y-%m-%d"), metrics = 'ga:visits',
 							   dimensions = 'ga:date', sort = '', filters = '', segment = '', fields = '', 
 							   start = 1, max = 1000, last.days, date.format = '%Y-%m-%d', 
-							   output.raw, output.formats, rbr = F) {
+							   output.raw,s output.formats, rbr = F, envir = .GlobalEnv) {
 
-				if (missing(ids)) {
-					stop('please enter a profile id');
-				}
+				if (missing(ids)) { stop('please enter a profile id'); }
 
-				if (!as.logical(length(as.numeric(grep('ga:', ids))))) {
-					ids <- paste('ga:', ids, sep = '');
+				# ensure that profile id begings with 'ga:'
+				if (!as.logical(length(as.numeric(grep('ga:', ids))))) { 
+					ids <- paste('ga:', ids, sep = ''); 
 				}
 
 				url <- paste('https://www.googleapis.com/analytics/v3/data/ga',
@@ -39,7 +38,7 @@
 
 	  		  	# possibility to extract the raw data
 				if (!missing(output.raw)) {
-					assign(output.raw, ga.data, envir = .GlobalEnv);
+					assign(output.raw, ga.data, envir = envir);
 				}
 	  
 	  		  	# output error and stop
@@ -92,7 +91,7 @@
 	  		  	}
 
 				if (!missing(output.formats)) {
-					assign(output.formats, formats, envir = .GlobalEnv);
+					assign(output.formats, formats, envir = envir);
 				}
       
 				return(ga.data.df);
