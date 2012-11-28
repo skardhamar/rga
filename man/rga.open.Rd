@@ -60,9 +60,6 @@ rga.open(instance = 'ga', client.id, client.secret, where, envir = .GlobalEnv)
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-rga.open(instance = 'ga')
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-%\keyword{ ~kwd1 }
-%\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+%\examples{
+%rga.open(instance = 'ga')
+%}

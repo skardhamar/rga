@@ -13,7 +13,7 @@ More about what it does (maybe more than one line)
 \tabular{ll}{
 Package: \tab rga\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
+Version: \tab 0.9\cr
 Date: \tab 2012-11-05\cr
 License: \tab What license is it under?\cr
 LazyLoad: \tab yes\cr
@@ -21,8 +21,6 @@ LazyLoad: \tab yes\cr
 ~~ An overview of how to use the package, including the most important functions ~~
 }
 \author{
-Who wrote it
-
 Maintainer: Bror Skardhamar <bror@skardhamar.com>
 }
 %\references{
@@ -35,6 +33,6 @@ Maintainer: Bror Skardhamar <bror@skardhamar.com>
 %~~ Optional links to other man pages, e.g. ~~
 %~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
 %}
-\examples{
-  rga.open(instance="ga")
-}
+%\examples{
+%  rga.open(instance="ga")
+%}

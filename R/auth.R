@@ -31,19 +31,22 @@ rga.open <- function(instance = 'ga',
 }
 
 .rga.getToken <- function(client.id, client.secret) {
-	redirect.uri <- 'urn:ietf:wg:oauth:2.0:oob';
-  
-	url <- paste('https://accounts.google.com/o/oauth2/auth?',
-    			 'scope=https://www.googleapis.com/auth/analytics.readonly&',
-                 'state=%2Fprofile&',
-                 'redirect_uri=', redirect.uri, '&',
-                 'response_type=code&',
-                 'client_id=', client.id, '&',
-                 'approval_prompt=force&',
-                 'access_type=offline', sep='', collapse='');
-  
-	browseURL(url);
-  	code <- readline('Please enter code here: ');
+	if (interactive()) {
+		redirect.uri <- 'urn:ietf:wg:oauth:2.0:oob';
+		url <- paste('https://accounts.google.com/o/oauth2/auth?',
+	    			 'scope=https://www.googleapis.com/auth/analytics.readonly&',
+	                 'state=%2Fprofile&',
+	                 'redirect_uri=', redirect.uri, '&',
+	                 'response_type=code&',
+	                 'client_id=', client.id, '&',
+	                 'approval_prompt=force&',
+	                 'access_type=offline', sep='', collapse='');
+	  
+		browseURL(url);	
+	  	code <- readline('Please enter code here: ');
+  	} else {
+  		code <- 'dummy';
+  	}
   	.rga.authenticate(client.id = client.id, client.secret = client.secret, code = code, redirect.uri = redirect.uri);
 }
 

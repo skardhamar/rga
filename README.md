@@ -14,7 +14,11 @@ Currently not on CRAN.
 
 Download from GitHub.
 
-	install.packages('https://github.com/skardhamar/rga/blob/master/rga_0.5.tar.gz?raw=true')
+	$ R CMD INSTALL rga -l /path/to/rga/rga_0.5.tar.gz
+
+And then type:
+
+	library("rga", lib.loc="/path/to/rga/rga_0.5.tar.gz")
 
 ## Usage
 
