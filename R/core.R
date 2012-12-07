@@ -5,7 +5,7 @@
 							   end.date = format(Sys.time(), "%Y-%m-%d"), metrics = 'ga:visits',
 							   dimensions = 'ga:date', sort = '', filters = '', segment = '', fields = '', 
 							   start = 1, max = 1000, last.days, date.format = '%Y-%m-%d', 
-							   output.raw,s output.formats, rbr = F, envir = .GlobalEnv) {
+							   output.raw, output.formats, rbr = F, envir = .GlobalEnv) {
 
 				if (missing(ids)) { stop('please enter a profile id'); }
 
@@ -51,7 +51,7 @@
 				
 				# did not return any results
 				if (class(ga.data$rows) != 'list' && !rbr) {
-					stop(paste('Total results: ', ga.data$totalResults, sep = ''));
+					stop(paste('no results: ', ga.data$totalResults, sep = ''));
 				} else if (class(ga.data$rows) != 'list' && rbr) {
 					# return data.frame with NA, if row-by-row setting is true
 					row <- as.data.frame(matrix(rep(NA, length(sub('ga:', '', as.data.frame(do.call(rbind, ga.data$columnHeaders))$name))), nrow=1))
@@ -82,6 +82,7 @@
 				formats$dataType[formats$dataType == 'INTEGER'] <- 'numeric';
 				formats$dataType[formats$dataType == 'PERCENT'] <- 'numeric';
 				formats$dataType[formats$dataType == 'TIME'] <- 'numeric';
+				formats$dataType[formats$dataType == 'CURRENCY'] <- 'numeric';
 				formats$dataType[formats$name == 'date'] <- 'Date';
 	  		  
 	  		  	for (i in 1:nrow(formats)) {
