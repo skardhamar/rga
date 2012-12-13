@@ -34,7 +34,11 @@
 				}					
 
 				# get data and convert from json to list-format
-				ga.data <- fromJSON(getURL(url));
+				ga.data <- getURL(url);
+				
+				#assign('testing', ga.data, envir = envir);
+
+				ga.data <- fromJSON(ga.data);
 
 	  		  	# possibility to extract the raw data
 				if (!missing(output.raw)) {
