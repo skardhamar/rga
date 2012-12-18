@@ -24,6 +24,8 @@ Currently not on CRAN.
 
 The principle of this package is to create an instance of the API Authentication, which is a S4/5-class (utilizing the setRefClass). This instance then contains all the functions needed to extract data, and all the data needed for the authentication and reauthentication. The class is in essence self sustaining.
 
+This means that you can create as many instances as you need.
+
 #### Basic use
 
 The instance is created with the `rga.open` command:
@@ -57,4 +59,4 @@ In order to extract data from the instance, there is a couple of commands to use
 			   sort = '', filters = '', segment = '',
 			   start = 1, max = 1000)
 
-The syntax follows the one dictated by Google.
+This will output the data in a data frame, with all the correct formats applied. The syntax follows the one dictated by Google.
