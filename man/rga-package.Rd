@@ -6,19 +6,18 @@
 R Google Analytics
 }
 \description{
-More about what it does (maybe more than one line)
-~~ A concise (1-5 lines) description of the package ~~
+This is a package for extracting data from Google Analytics into R. The package uses OAuth 2.0 (protocol) to access the Google Analytics API.
 }
 \details{
 \tabular{ll}{
 Package: \tab rga\cr
 Type: \tab Package\cr
 Version: \tab 0.9\cr
-Date: \tab 2012-11-05\cr
-License: \tab What license is it under?\cr
+Date: \tab 2012-12-05\cr
+License: \tab GPL\cr
 LazyLoad: \tab yes\cr
 }
-~~ An overview of how to use the package, including the most important functions ~~
+
 }
 \author{
 Maintainer: Bror Skardhamar <bror@skardhamar.com>
@@ -28,11 +27,16 @@ Maintainer: Bror Skardhamar <bror@skardhamar.com>
 %}
 %~~ Optionally other standard keywords, one per line, from file KEYWORDS in the R documentation ~
 %~~ directory ~~
-\keyword{ package }
-%\seealso{
+\keyword{
+	rga
+	google analytics
+	google analytics api
+}
+\seealso{
+	\code{\link[rga:rga.open]{rga.open}}
 %~~ Optional links to other man pages, e.g. ~~
 %~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
-%}
+}
 %\examples{
 %  rga.open(instance="ga")
 %}

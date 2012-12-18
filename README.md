@@ -31,6 +31,8 @@ The instance is created with the `rga.open` command:
 
 This will check if the instance is already created, and if it is, it'll prepare the token. If the instance is not created, it'll create the instance, and redirect the client to a browser for authentication with Google.
 
+You then have to authenticate the application, Google will then output an access code, which you need to enter in the R console.
+
 #### Advanced use
 
 If you want to store the instance locally, this can be done by adding the `where` attribute:
