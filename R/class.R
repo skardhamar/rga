@@ -11,7 +11,7 @@
 				.self$where <- where;
 				.self$client.id <- client.id;
 				.self$client.secret <- client.secret;
-				.self$setToken(token, initiate=T);
+				.self$setToken(token, initiate=TRUE);
 				return(.self);
 			},
 			prepare = function() {
@@ -21,17 +21,17 @@
 			},
 			isToken = function() {
 				if (!is.null(.self$token)) {
-					return(T);
+					return(TRUE);
 				} else {
-					return(F);
+					return(FALSE);
 				}
 			},
 			isTokenExpired = function() {
 				if (.self$isToken()) {
 					if (.self$tokenExpiresIn() <= 0) {
-						return(T);
+						return(TRUE);
 					} else {
-						return(F);
+						return(FALSE);
 					}
 				} else {
 					stop('token is not created');
@@ -44,13 +44,13 @@
 					stop('token is not created');
 				}
 			},
-			setToken = function(token, initiate = F) {
+			setToken = function(token, initiate = FALSE) {
 				.self$token <- token;
 				if (.self$isWhere() && !initiate) {
 					saveRDS(.self, file = .self$where);
 				}
 			},
-			getToken = function(refresh = T) {
+			getToken = function(refresh = TRUE) {
 				if (.self$isToken()) {
 					if (.self$isTokenExpired() && refresh) {
 						.self$refreshToken()
@@ -76,9 +76,9 @@
 			},
 			isWhere = function() { # converts a string to a boolean
 				if (nchar(.self$where) != 0) {
-					return(T);
+					return(TRUE);
 				} else {
-					return(F);
+					return(FALSE);
 				}
 			}
 		)

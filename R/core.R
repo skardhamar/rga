@@ -5,7 +5,7 @@
 							   end.date = format(Sys.time(), "%Y-%m-%d"), metrics = 'ga:visits',
 							   dimensions = 'ga:date', sort = '', filters = '', segment = '', fields = '', 
 							   start = 1, max = 1000, last.days, date.format = '%Y-%m-%d', 
-							   output.raw, output.formats, rbr = F, envir = .GlobalEnv) {
+							   output.raw, output.formats, rbr = FALSE, envir = .GlobalEnv) {
 
 				if (missing(ids)) { stop('please enter a profile id'); }
 

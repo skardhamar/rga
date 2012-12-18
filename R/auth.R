@@ -42,7 +42,8 @@ rga.open <- function(instance = 'ga',
 	                 'approval_prompt=force&',
 	                 'access_type=offline', sep='', collapse='');
 	  
-		browseURL(url);	
+		browseURL(url);
+		cat(paste('Browse URL:', url, '\n')); # in case of server
 	  	code <- readline('Please enter code here: ');
   	} else {
   		code <- 'dummy';
@@ -51,7 +52,7 @@ rga.open <- function(instance = 'ga',
 }
 
 .rga.authenticate <- function(client.id, client.secret, code, redirect.uri) {
-	opts <- list(verbose = F);
+	opts <- list(verbose = FALSE);
 	raw.data <- postForm('https://accounts.google.com/o/oauth2/token', 
                          .opts = opts, 
                          code = code, 
