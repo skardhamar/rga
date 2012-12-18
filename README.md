@@ -39,3 +39,12 @@ If you want to store the instance locally, this can be done by adding the `where
 	rga.open(instance="ga", where="~/ga.rga")
 
 This means, that even if you delete the `.RData` workspace, the package will make sure you have access to the API.
+
+#### Use own Google API Client
+
+If you want to use your own Google API Client, you need to provide this data in the `rga.open`:
+
+	rga.open(instance = 'ga', 
+			 client.id = '862341168163-qtefv92ckvn2gveav66im725c3gqj728.apps.googleusercontent.com', 
+			 client.secret = 'orSEbf0-S76VZv6RMHe46z_N')
+			
