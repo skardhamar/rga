@@ -8,17 +8,14 @@ The package uses OAuth 2.0 ([protocol](http://tools.ietf.org/html/draft-ietf-oau
 
 ### Manually
 
-Download from GitHub.
+Install ([devtools](https://github.com/hadley/devtools)) package:
 
-	$ R CMD INSTALL rga -l /path/to/rga/rga_0.9.tar.gz
+	install.packages('devtools')
 
-And then type:
+And then run the `install_github` command:
 
-	library("rga", lib.loc="/path/to/rga/rga_0.9.tar.gz")
-
-### CRAN
-
-Currently not on CRAN.
+	install_github('rga', 'skardhamar')
+	library(rga)
 
 ## Authenticating
 
@@ -62,3 +59,5 @@ In order to extract data from the instance, there is a couple of commands to use
 			   start = 1, max = 1000)
 
 This will output the data in a data frame, with all the correct formats applied. The syntax follows the one dictated by Google.
+
+The dates defaults to the current day, meaning that if you don't input these, only data from today will be extracted.
