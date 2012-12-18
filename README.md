@@ -50,6 +50,8 @@ If you want to use your own Google API Client, you need to provide this data in 
 			 client.id = '862341168163-qtefv92ckvn2gveav66im725c3gqj728.apps.googleusercontent.com', 
 			 client.secret = 'orSEbf0-S76VZv6RMHe46z_N')
 
+Create a project in ([Google API Console](https://code.google.com/apis/console/)) to acquire `client.id` and `client.secret`.
+
 ## Extracting data
 
 In order to extract data from the instance, there is a couple of commands to use. The most important one is `$getData`:
