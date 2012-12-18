@@ -20,7 +20,7 @@ And then type:
 
 Currently not on CRAN.
 
-## Usage
+## Authenticating
 
 The principle of this package is to create an instance of the API Authentication, which is a S4/5-class (utilizing the setRefClass). This instance then contains all the functions needed to extract data, and all the data needed for the authentication and reauthentication. The class is in essence self sustaining.
 
@@ -47,4 +47,14 @@ If you want to use your own Google API Client, you need to provide this data in 
 	rga.open(instance = 'ga', 
 			 client.id = '862341168163-qtefv92ckvn2gveav66im725c3gqj728.apps.googleusercontent.com', 
 			 client.secret = 'orSEbf0-S76VZv6RMHe46z_N')
-			
+
+## Extracting data
+
+In order to extract data from the instance, there is a couple of commands to use. The most important one is `$getData`:
+
+	ga$getData(ids, start.date, end.date, 
+			   metrics = 'ga:visits', dimensions = 'ga:date', 
+			   sort = '', filters = '', segment = '',
+			   start = 1, max = 1000)
+
+The syntax follows the one dictated by Google.
