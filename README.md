@@ -8,13 +8,13 @@ The package uses OAuth 2.0 ([protocol](http://tools.ietf.org/html/draft-ietf-oau
 
 ### Manually
 
-Install ([devtools](https://github.com/hadley/devtools)) package:
+Install the [devtools](https://github.com/hadley/devtools) package:
 
-	install.packages('devtools')
+	install.packages("devtools")
 
 And then run the `install_github` command:
 
-	install_github('rga', 'skardhamar')
+	install_github("rga", "skardhamar")
 	library(rga)
 
 ## Authenticating
@@ -43,19 +43,19 @@ This means, that even if you delete the `.RData` workspace, the package will mak
 
 If you want to use your own Google API Client, you need to provide this data in the `rga.open`:
 
-	rga.open(instance = 'ga', 
-			 client.id = '862341168163-qtefv92ckvn2gveav66im725c3gqj728.apps.googleusercontent.com', 
-			 client.secret = 'orSEbf0-S76VZv6RMHe46z_N')
+	rga.open(instance = "ga", 
+			 client.id = "862341168163-qtefv92ckvn2gveav66im725c3gqj728.apps.googleusercontent.com", 
+			 client.secret = "orSEbf0-S76VZv6RMHe46z_N")
 
-Create a project in ([Google API Console](https://code.google.com/apis/console/)) to acquire `client.id` and `client.secret`.
+Create a project in [Google API Console](https://code.google.com/apis/console/) to acquire `client.id` and `client.secret`.
 
 ## Extracting data
 
 In order to extract data from the instance, there is a couple of commands to use. The most important one is `$getData`:
 
 	ga$getData(ids, start.date, end.date, 
-			   metrics = 'ga:visits', dimensions = 'ga:date', 
-			   sort = '', filters = '', segment = '',
+			   metrics = "ga:visits", dimensions = "ga:date", 
+			   sort = "", filters = "", segment = "",
 			   start = 1, max = 1000)
 
 This will output the data in a data frame, with all the correct formats applied. The syntax follows the one dictated by Google.
