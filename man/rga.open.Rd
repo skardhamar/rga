@@ -65,5 +65,8 @@
   \dontrun{
     rga.open(instance = "ga");
     profiles <- ga$getProfiles();
+
+    # explore class:
+    ga$getRefClass()
   }
 }
