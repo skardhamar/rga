@@ -1,33 +1,36 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>R Google Analytics by skardhamar</title>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="R Google Analytics : An easy API connector to Google Analytics in R" />
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>R Google Analytics</title>
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
-        <h1>R Google Analytics</h1>
-        <p>An easy API connector to Google Analytics in R</p>
 
-        <p class="view"><a href="https://github.com/skardhamar/rga">View the Project on GitHub <small>skardhamar/rga</small></a></p>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/skardhamar/rga">View on GitHub</a>
 
+          <h1 id="project_title">R Google Analytics</h1>
+          <h2 id="project_tagline">An easy API connector to Google Analytics in R</h2>
 
-        <ul>
-          <li><a href="https://github.com/skardhamar/rga/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/skardhamar/rga/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/skardhamar/rga">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/skardhamar/rga/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/skardhamar/rga/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
         <h1>R Google Analytics</h1>
 
 <p>This is a package for extracting data from Google Analytics into R.</p>
@@ -36,50 +39,92 @@
 
 <h2>Installation</h2>
 
-<h3>CRAN</h3>
-
-<p>Currently not on CRAN.</p>
-
 <h3>Manually</h3>
 
-<p>Download from GitHub.</p>
+<p>Install the <a href="https://github.com/hadley/devtools">devtools</a> package:</p>
 
-<pre><code>$ R CMD INSTALL rga -l /path/to/rga/rga_0.5.tar.gz
+<pre><code>install.packages("devtools")
+library(devtools)
 </code></pre>
 
-<p>And then type:</p>
+<p>And then run the <code>install_github</code> command:</p>
 
-<pre><code>library("rga", lib.loc="/path/to/rga/rga_0.5.tar.gz")
+<pre><code>install_github("rga", "skardhamar")
+library(rga)
 </code></pre>
 
-<h2>Usage</h2>
+<h2>Authenticating</h2>
 
 <p>The principle of this package is to create an instance of the API Authentication, which is a S4/5-class (utilizing the setRefClass). This instance then contains all the functions needed to extract data, and all the data needed for the authentication and reauthentication. The class is in essence self sustaining.</p>
+
+<p>This means that you can create as many instances as you need.</p>
 
 <h4>Basic use</h4>
 
 <p>The instance is created with the <code>rga.open</code> command:</p>
 
-<pre><code>// create instance
-rga.open(instance="ga")
+<pre><code>rga.open(instance="ga")
 </code></pre>
 
 <p>This will check if the instance is already created, and if it is, it'll prepare the token. If the instance is not created, it'll create the instance, and redirect the client to a browser for authentication with Google.</p>
+
+<p>You then have to authenticate the application, Google will then output an access code, which you need to enter in the R console.</p>
 
 <h4>Advanced use</h4>
 
 <p>If you want to store the instance locally, this can be done by adding the <code>where</code> attribute:</p>
 
-<pre><code>// create a local instance
-rga.open(instance="ga", where="~/ga.rga")
+<pre><code>rga.open(instance="ga", where="~/ga.rga")
 </code></pre>
+
+<p>This means, that even if you delete the <code>.RData</code> workspace, the package will make sure you have access to the API.</p>
+
+<h4>Use own Google API Client</h4>
+
+<p>If you want to use your own Google API Client, you need to provide this data in the <code>rga.open</code>:</p>
+
+<pre><code>rga.open(instance = "ga", 
+         client.id = "862341168163-qtefv92ckvn2gveav66im725c3gqj728.apps.googleusercontent.com", 
+         client.secret = "orSEbf0-S76VZv6RMHe46z_N")
+</code></pre>
+
+<p>Create a project in <a href="https://code.google.com/apis/console/">Google API Console</a> to acquire <code>client.id</code> and <code>client.secret</code>.</p>
+
+<h2>Extracting data</h2>
+
+<p>In order to extract data from the instance, there is a couple of commands to use. The most important one is <code>$getData</code>:</p>
+
+<pre><code>ga$getData(ids, start.date, end.date, 
+           metrics = "ga:visits", dimensions = "ga:date", 
+           sort = "", filters = "", segment = "",
+           start = 1, max = 1000)
+</code></pre>
+
+<p>This will output the data in a data frame, with all the correct formats applied. The syntax follows the one dictated by Google - please refer to the documentation for further information.</p>
+
+<p>The dates defaults to the current day, meaning that if you don't input these, only data from today will be extracted.</p>
       </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/skardhamar">skardhamar</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">R Google Analytics maintained by <a href="https://github.com/skardhamar">skardhamar</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-37471686-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
   </body>
 </html>
