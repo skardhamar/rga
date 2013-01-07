@@ -11,6 +11,7 @@ The package uses OAuth 2.0 ([protocol](http://tools.ietf.org/html/draft-ietf-oau
 Install the [devtools](https://github.com/hadley/devtools) package:
 
 	install.packages("devtools")
+	library(devtools)
 
 And then run the `install_github` command:
 
