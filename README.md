@@ -60,6 +60,6 @@ In order to extract data from the instance, there is a couple of commands to use
 			   sort = "", filters = "", segment = "",
 			   start = 1, max = 1000)
 
-This will output the data in a data frame, with all the correct formats applied. The syntax follows the one dictated by Google.
+This will output the data in a data frame, with all the correct formats applied. The syntax follows the one dictated by Google - please refer to the documentation for further information.
 
 The dates defaults to the current day, meaning that if you don't input these, only data from today will be extracted.
