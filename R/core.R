@@ -4,7 +4,7 @@
 			getData = function(ids, start.date = format(Sys.time(), "%Y-%m-%d"), 
 							   end.date = format(Sys.time(), "%Y-%m-%d"), metrics = 'ga:visits',
 							   dimensions = 'ga:date', sort = '', filters = '', segment = '', fields = '', 
-							   start = 1, max, date.format = '%Y-%m-%d', messages = TRUE, batch,
+							   start = 1, max, date.format = '%Y-%m-%d', messages = TRUE, batch, walk = FALSE,
 							   output.raw, output.formats, return.url = FALSE, rbr = FALSE, envir = .GlobalEnv) {
 
 				if (missing(ids)) { stop('please enter a profile id'); }
@@ -81,6 +81,11 @@
 	  		  	# output error and stop
 				if (!is.null(ga.data$error)) {
 					stop(paste('error in fetching data: ', ga.data$error$message,  sep=''))
+				}
+
+				if (ga.data$containsSampledData == 'TRUE') {
+					isSampled <- TRUE;
+					message('Notice: Data set contains sampled data');
 				}
 
 				# check if all data is being extracted
