@@ -85,7 +85,19 @@
 
 				if (ga.data$containsSampledData == 'TRUE') {
 					isSampled <- TRUE;
-					message('Notice: Data set contains sampled data');
+					if (!walk) {
+						message('Notice: Data set contains sampled data');
+					}
+				} else {
+					isSampled <- FALSE;
+				}
+
+				if (isSampled && walk) {
+					return(.self$getDataInWalks(total = ga.data$totalResults, max = max, batch = batch,
+											   ids = ids, start.date = start.date, end.date = end.date,
+											   metrics = metrics, dimensions = dimensions, sort = sort,
+											   filters = filters, segment = segment, fields = fields, 
+											   date.format = date.format, envir = envir));
 				}
 
 				# check if all data is being extracted
@@ -190,6 +202,28 @@
 					message(paste('Recieved:', nrow(chunk), 'observations'));
 					chunk.list[[i + 1]] <- chunk;
 				}
+				return(do.call(rbind, chunk.list, envir = envir));
+			},
+			getDataInWalks = function(total, max, batch, ids, start.date, end.date,
+									  metrics, dimensions, sort, filters, segment, fields, 
+									  date.format, envir) {
+				# this function will extract data day-by-day (to avoid sampling)
+				walks.max <- ceiling(as.numeric(difftime(end.date, start.date, units='days')));
+				chunk.list <- vector('list', walks.max + 1);
+
+				for (i in 0:(walks.max)) {
+					date <- format(as.POSIXct(start.date) + days(i), '%Y-%m-%d');
+
+					message(paste('Run (', i + 1, '/', walks.max + 1, '): for date ', date, sep = ""));
+					chunk <- .self$getData(ids = ids, start.date = date, end.date = date,
+										   metrics = metrics, dimensions = dimensions, sort = sort,
+										   filters = filters, segment = segment, fields = fields, 
+										   date.format = date.format, envir = envir, max = max, rbr = TRUE,
+										   messages = FALSE, return.url = FALSE, batch = batch)
+					message(paste('Recieved:', nrow(chunk), 'observations'));
+					chunk.list[[i + 1]] <- chunk;
+				}
+
 				return(do.call(rbind, chunk.list, envir = envir));
 			}
 		)
