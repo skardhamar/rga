@@ -7,7 +7,7 @@ The package uses OAuth 2.0 ([protocol](http://tools.ietf.org/html/draft-ietf-oau
 ### News / changelist
 
 - Pulling data in batches has been added
-- Pulling unsapled data has been added
+- Pulling unsampled data has been added
 - No more SSL errors (thanks to Schaun Wheeler, who also has been added as a collaborator!)
 - A bunch of tweaks
 
