@@ -4,16 +4,45 @@
 			getData = function(ids, start.date = format(Sys.time(), "%Y-%m-%d"), 
 							   end.date = format(Sys.time(), "%Y-%m-%d"), metrics = 'ga:visits',
 							   dimensions = 'ga:date', sort = '', filters = '', segment = '', fields = '', 
-							   start = 1, max = 1000, last.days, date.format = '%Y-%m-%d', 
-							   output.raw, output.formats, rbr = FALSE, envir = .GlobalEnv) {
+							   start = 1, max, date.format = '%Y-%m-%d', messages = TRUE, batch,
+							   output.raw, output.formats, return.url = FALSE, rbr = FALSE, envir = .GlobalEnv) {
 
 				if (missing(ids)) { stop('please enter a profile id'); }
+
+				if (missing(batch) || batch == FALSE) {
+					isBatch <- FALSE;
+					if (missing(max)) {
+						max <- 1000; # standard
+					}
+				} else {
+					isBatch <- TRUE;
+					if (!is.numeric(batch)) {
+						if (!missing(max) && max < 10000) {
+							batch <- max; # no need
+						} else {
+							batch <- 10000; # max batch size
+						}
+					} else {
+						if (batch > 10000) {
+							# as per https://developers.google.com/analytics/devguides/reporting/core/v2/gdataReferenceDataFeed#maxResults
+							stop('batch size can max be set to 10000');
+						}
+					}
+
+					if (missing(max)) {
+						adjustMax <- TRUE;
+						max <- 10000; # arbitrary target, adjust later
+					} else {
+						adjustMax <- FALSE;
+					}
+				}
 
 				# ensure that profile id begings with 'ga:'
 				if (!as.logical(length(as.numeric(grep('ga:', ids))))) { 
 					ids <- paste('ga:', ids, sep = ''); 
 				}
 
+				# build url with variables
 				url <- paste('https://www.googleapis.com/analytics/v3/data/ga',
                				 '?access_token=', .self$getToken()$access_token,
                			  	 '&ids=', ids,
@@ -33,11 +62,15 @@
 					url <- paste(url, '&filters=', curlEscape(filters), sep='', collapse=''); 
 				}					
 
-				# get data and convert from json to list-format
-				ga.data <- getURL(url);
-				
-				#assign('testing', ga.data, envir = envir);
+				if (return.url) {
+					return(url);
+				}
 
+				# get data and convert from json to list-format
+				# thanks to Schaun Wheeler this will not provoke the weird SSL-bug
+				
+				ga.data <- getURL(url, .opts = list(verbose = FALSE, capath = system.file("CurlSSL", "cacert.pem", package = "RCurl"), ssl.verifypeer = FALSE));
+				
 				ga.data <- fromJSON(ga.data);
 
 	  		  	# possibility to extract the raw data
@@ -48,6 +81,24 @@
 	  		  	# output error and stop
 				if (!is.null(ga.data$error)) {
 					stop(paste('error in fetching data: ', ga.data$error$message,  sep=''))
+				}
+
+				# check if all data is being extracted
+				if (length(ga.data$rows) < ga.data$totalResults && (messages || isBatch)) {
+					if (!isBatch) {
+						message(paste('Only pulling', length(ga.data$rows), 'observations of', ga.data$totalResults, 'total (set batch = TRUE to get all observations)'));
+					} else {
+						if (adjustMax) {
+							max <- ga.data$totalResults;
+						}
+						message(paste('Pulling', max, 'observations in batches of', batch));
+						# pass variables to batch-function
+						return(.self$getDataInBatches(total = ga.data$totalResults, max = max, batchSize = batch,
+											   ids = ids, start.date = start.date, end.date = end.date,
+											   metrics = metrics, dimensions = dimensions, sort = sort,
+											   filters = filters, segment = segment, fields = fields, 
+											   date.format = date.format, envir = envir));
+					}
 				}
       
 	  		  	# get column names
@@ -89,6 +140,7 @@
 				formats$dataType[formats$dataType == 'CURRENCY'] <- 'numeric';
 				formats$dataType[formats$name == 'date'] <- 'Date';
 	  		  
+				# looping through columns and setting classes  		  
 	  		  	for (i in 1:nrow(formats)) {
 	  		 		column <- formats$name[i];
 	  		 		class <- formats$dataType[[i]];
@@ -99,14 +151,41 @@
 					assign(output.formats, formats, envir = envir);
 				}
       
+      			# and we're done
 				return(ga.data.df);
 			},
 			getFirstDate = function(ids) {
 				first <- .self$getData(ids,
 								  	   start.date='2005-01-01', # GA launched this date
-									   filters='ga:visits!=0',
-									   max=1);
+									   filters='ga:visits!=0', # lowest denominator
+									   max=1,
+									   messages=FALSE);
 				return(first$date);
+			},
+			getDataInBatches = function(batchSize, total, ids, start.date, end.date, metrics, max, 
+										dimensions, sort, filters, segment, fields, date.format, envir) {
+				runs.max <- ceiling(max/batchSize);
+				chunk.list <- vector('list', runs.max);
+				for (i in 0:(runs.max - 1)) {
+					start <- i * batchSize + 1;
+					end <- start + batchSize - 1;
+					
+					if (end > max) { # adjust batch size if we're pulling the last batch
+						batchSize <- max - batchSize;
+						end <- max;
+					}
+
+					message(paste('Run (', i + 1, '/', runs.max, '): observations [', start, ';', end, ']. Batch size: ', batchSize, sep = ""));
+					chunk <- .self$getData(ids = ids, start.date = start.date, end.date = end.date,
+										   metrics = metrics, dimensions = dimensions, sort = sort,
+										   filters = filters, segment = segment, fields = fields, 
+										   date.format = date.format, envir = envir, 
+										   messages = FALSE, return.url = FALSE, batch = FALSE, # static
+										   start = start, max = batchSize); # dynamic
+					message(paste('Recieved:', nrow(chunk), 'observations'));
+					chunk.list[[i + 1]] <- chunk;
+				}
+				return(do.call(rbind, chunk.list, envir = envir));
 			}
 		)
 	);

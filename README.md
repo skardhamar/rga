@@ -4,9 +4,17 @@ This is a package for extracting data from Google Analytics into R.
 
 The package uses OAuth 2.0 ([protocol](http://tools.ietf.org/html/draft-ietf-oauth-v2-22)) to access the Google Analytics API.
 
+### News / changelist
+
+- Pulling data in batches has been added.
+- No more SSL errors (thanks to Schaun Wheeler, who also has been added as a collaborator!)
+- A bunch of tweaks
+
 ## Installation
 
 ### Manually
+
+Since `rga` is still under development it is not yet on CRAN, please download the development version. You can get the latest version from github with:
 
 Install the [devtools](https://github.com/hadley/devtools) package:
 
@@ -64,3 +72,25 @@ In order to extract data from the instance, there is a couple of commands to use
 This will output the data in a data frame, with all the correct formats applied. The syntax follows the one dictated by Google - please refer to the documentation for further information.
 
 The dates defaults to the current day, meaning that if you don't input these, only data from today will be extracted.
+
+## Extracting more observations than 10.000
+
+The Google Analytics API has a natural limit of 10.000 observations pr. pull. Therefore there has been added the possibility to extract data in batches. The `$getData`-function will now throw a message if not all the observations are being extracted. 
+
+In order to extract this data, just use the `batch`-attribute, for example:
+
+	ga$getData(ids, batch = TRUE, start.date, end.date, 
+			   metrics = "ga:visits", dimensions = "ga:date,ga:medium,ga:source", 
+			   sort = "", filters = "", segment = "")
+
+Alternatively you can set the batch to an integer, and the function will pull the date in batches of this integer. If you just set it to `TRUE` it will automatically pull the data in batches of 10.000 observations (which is what is the maximum allowed observations).
+
+Notice that in this example the `max`-attribute is missing, if this is the case, the function will automatically pull ALL the data. If you however set the `max`-attribute and the `batch` to true, the function will pull the data in batches untill it reaches the `max`.
+
+## Get the first date with data
+
+In order to get hte date that contains the first data, use the function:
+
+	ga$getFirstDate(ids)
+
+This function will do a lookup for first available data.

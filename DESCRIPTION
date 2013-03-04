@@ -1,8 +1,8 @@
 Package: rga
 Title: R Google Analytics
 Description: A package for seemless API connection to Google Analytics
-Url: http://www.brorskardhamar.com/rga
-Version: 0.6
+Url: https://github.com/skardhamar/rga
+Version: 0.8
 Date: 2012-14-11
 Maintainer: Bror Skardhamar <skardhamar@gmail.com>
 Author: Bror Skardhamar <skardhamar@gmail.com>
