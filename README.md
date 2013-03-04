@@ -6,7 +6,8 @@ The package uses OAuth 2.0 ([protocol](http://tools.ietf.org/html/draft-ietf-oau
 
 ### News / changelist
 
-- Pulling data in batches has been added.
+- Pulling data in batches has been added
+- Pulling unsapled data has been added
 - No more SSL errors (thanks to Schaun Wheeler, who also has been added as a collaborator!)
 - A bunch of tweaks
 
@@ -73,9 +74,9 @@ This will output the data in a data frame, with all the correct formats applied.
 
 The dates defaults to the current day, meaning that if you don't input these, only data from today will be extracted.
 
-## Extracting more observations than 10.000
+## Extracting more observations than 10,000
 
-The Google Analytics API has a natural limit of 10.000 observations pr. pull. Therefore there has been added the possibility to extract data in batches. The `$getData`-function will now throw a message if not all the observations are being extracted. 
+The Google Analytics API has a natural limit of 10,000 observations pr. pull. Therefore there has been added the possibility to extract data in batches. The `$getData`-function will now throw a message if not all the observations are being extracted. 
 
 In order to extract this data, just use the `batch`-attribute, for example:
 
@@ -89,8 +90,22 @@ Notice that in this example the `max`-attribute is missing, if this is the case,
 
 ## Get the first date with data
 
-In order to get hte date that contains the first data, use the function:
+In order to get the date that contains the first data, use the function:
 
 	ga$getFirstDate(ids)
 
 This function will do a lookup for first available data.
+
+## Get the data unsampled
+
+In some cases where there exists large amount of data, Google Analytics will return sampled data. In order to avoid this, you can partition the query into multiple small querys (day-by-day). One reason of sampling is if a query includes more than 500,000 sessions and is not one of the pre-aggregated queries. Using an advanced segment or filter in a query will generally mean that sampling will occur if the 500,000 sessions are exceeded.
+
+You can get this day-by-day data by using the `walk`-attribute, which in effect will 'walk' through the the data set day-by-day, this results in unsampled data (set `batch` to TRUE to require ALL data), for example:
+
+	ga$getData(ids, batch = TRUE, walk = TRUE, 
+			   start.date, end.date, 
+			   metrics = "ga:visits,ga:transactions", 
+			   dimensions="ga:keyword",
+			   filter="ga:country==Denmark;ga:medium==organic")
+
+However, this will result in a lot of requests made to the API, this can result in hitting the quota limit. So use with care.
