@@ -68,15 +68,22 @@
 
 				# get data and convert from json to list-format
 				# thanks to Schaun Wheeler this will not provoke the weird SSL-bug
-				
-				ga.data <- getURL(url, .opts = list(verbose = FALSE, capath = system.file("CurlSSL", "cacert.pem", package = "RCurl"), ssl.verifypeer = FALSE));
-				
-				ga.data <- fromJSON(ga.data);
+				# switched to use httr
+				request <- httr::GET(url);
+				ga.data <- httr::content(request);
 
-	  		  	# possibility to extract the raw data
+				###### ga.data <- getURL(url, 
+				###### 				  .opts = list(verbose = FALSE, 
+				###### 				  	 		   capath = system.file("CurlSSL", "cacert.pem", package = "RCurl"), 
+				###### 				  	 		   ssl.verifypeer = FALSE));
+				###### # returns character encoded in UTF-8
+
+				# possibility to extract the raw data
 				if (!missing(output.raw)) {
 					assign(output.raw, ga.data, envir = envir);
 				}
+				
+				###### ga.data <- rjson::fromJSON(ga.data); # use rjsons parser
 	  
 	  		  	# output error and stop
 				if (!is.null(ga.data$error)) {
@@ -150,6 +157,7 @@
 				# convert to r friendly
 				formats$name <- sub('ga:', '', formats$name);
 				formats$columnType <- tolower(formats$columnType);
+				formats$dataType <- lapply(formats$dataType, as.character); # as suggested by @mtaanman
 				formats$dataType[formats$dataType == 'STRING'] <- 'character';
 				formats$dataType[formats$dataType == 'INTEGER'] <- 'numeric';
 				formats$dataType[formats$dataType == 'PERCENT'] <- 'numeric';
