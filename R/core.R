@@ -69,6 +69,7 @@
 				# get data and convert from json to list-format
 				# thanks to Schaun Wheeler this will not provoke the weird SSL-bug
 				# switched to use httr
+				options(RCurlOptions = list(verbose = FALSE, capath = system.file("CurlSSL", "cacert.pem", package = "RCurl"), ssl.verifypeer = FALSE))
 				request <- httr::GET(url);
 				ga.data <- httr::content(request);
 
