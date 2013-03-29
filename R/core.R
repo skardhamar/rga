@@ -164,6 +164,7 @@
 				formats$dataType[formats$dataType == 'PERCENT'] <- 'numeric';
 				formats$dataType[formats$dataType == 'TIME'] <- 'numeric';
 				formats$dataType[formats$dataType == 'CURRENCY'] <- 'numeric';
+			  formats$dataType[formats$dataType == 'FLOAT'] <- 'numeric';
 				formats$dataType[formats$name == 'date'] <- 'Date';
 	  		  
 				# looping through columns and setting classes  		  
