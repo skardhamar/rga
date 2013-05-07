@@ -1,4 +1,1 @@
-S3method(rga.open)
-
 exportClasses(rga) 
-export(rga) 
