@@ -62,7 +62,12 @@ rga.open <- function(instance = 'ga',
                          grant_type = 'authorization_code', 
                          style = 'POST');
   
-	token.data <- fromJSON(raw.data);
+  if(class(raw.data)=="raw") {
+      token.data <- fromJSON(rawToChar(raw.data));
+    } else {
+      token.data <- fromJSON(raw.data);
+    }
+	
   	now <- as.numeric(Sys.time());
   	token <- c(token.data, timestamp = c('first' = now, 'refresh' = now));
   
