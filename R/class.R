@@ -70,7 +70,12 @@
                 
 				# remember to pass refresh token
 				
-				token.data <- fromJSON(raw.data);
+				if(class(raw.data)=="raw") {
+			 			token.data <- fromJSON(rawToChar(raw.data));
+					} else {
+						token.data <- fromJSON(raw.data);
+					}
+
 				now <- as.numeric(Sys.time());
 				.self$setToken(c(token.data, refresh_token = .self$token$refresh_token, timestamp = c('first' = .self$token$timestamp.first, 'refresh' = now)));
 			},
