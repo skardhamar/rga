@@ -2,7 +2,7 @@
 	rga$methods(
 		list(
 			processManagementData = function(url, keep) {
-				ga.json <- fromJSON(getURL(url));
+				ga.json <- content(GET(url));
 				
 				if (is.null(ga.json)) { stop('data fetching did not output correct format'); }
 				
