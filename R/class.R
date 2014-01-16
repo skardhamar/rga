@@ -61,22 +61,19 @@
 				}
 			},
 			refreshToken = function() { 
-				raw.data <- postForm('https://accounts.google.com/o/oauth2/token', 
-									 refresh_token = .self$token$refresh_token, 
-									 client_id = .self$client.id,
-									 client_secret = .self$client.secret,
-									 grant_type = 'refresh_token', 
-									 style = 'POST');
+				raw.response <- POST('https://accounts.google.com/o/oauth2/token', 
+				              body = list(
+												refresh_token = .self$token$refresh_token, 
+												client_id = .self$client.id,
+												client_secret = .self$client.secret,
+												grant_type = 'refresh_token'
+												)
+									 );
                 
-				# remember to pass refresh token
-				
-				if(class(raw.data)=="raw") {
-			 			token.data <- fromJSON(rawToChar(raw.data));
-					} else {
-						token.data <- fromJSON(raw.data);
-					}
+			# remember to pass refresh token
+			token.data <- content(raw.response);
 
-				now <- as.numeric(Sys.time());
+			now <- as.numeric(Sys.time());
 				.self$setToken(c(token.data, refresh_token = .self$token$refresh_token, timestamp = c('first' = .self$token$timestamp.first, 'refresh' = now)));
 			},
 			isWhere = function() { # converts a string to a boolean
