@@ -86,7 +86,7 @@
         }
 
         if (isSampled && walk) {
-          return(.self$getDataInWalks(total = ga.data$totalResults, max = max, batch = batch,
+          return(.self$getMCFDataInWalks(total = ga.data$totalResults, max = max, batch = batch,
                          ids = ids, start.date = start.date, end.date = end.date,
                          metrics = metrics, dimensions = dimensions, sort = sort,
                          filters = filters, segment = segment, fields = fields, 
@@ -103,7 +103,7 @@
             }
             message(paste('Pulling', max, 'observations in batches of', batch));
             # pass variables to batch-function
-            return(.self$getDataInBatches(total = ga.data$totalResults, max = max, batchSize = batch,
+            return(.self$getMCFDataInBatches(total = ga.data$totalResults, max = max, batchSize = batch,
                          ids = ids, start.date = start.date, end.date = end.date,
                          metrics = metrics, dimensions = dimensions, sort = sort,
                          filters = filters, segment = segment, fields = fields, 
@@ -130,11 +130,6 @@
         # remove mcf: from column headersView
         ga.headers$name <- sub('mcf:', '', ga.headers$name); 
         names(ga.data.df) <- ga.headers$name; # insert column names
-              
-        if ('date' %in% names(ga.data.df)) {
-          # mos-def optimize
-          ga.data.df$'date' <- as.Date(format(as.Date(ga.data.df$'date', '%Y%m%d'), date.format), format=date.format);
-        }
 
         # find formats
         formats <- as.data.frame(do.call(rbind, ga.data$columnHeaders));
@@ -164,12 +159,63 @@
           }
         }
 
+        if ('conversionDate' %in% names(ga.data.df)) {
+          ga.data.df$'conversionDate' <- ldply(ga.data.df$'conversionDate',.fun=function(x){return(as.Date(format(as.Date(x, '%Y%m%d'), date.format), format=date.format))})
+          names(ga.data.df$'conversionDate') <- 'conversionDate'
+        }
+
         if (!missing(output.formats)) {
           assign(output.formats, formats, envir = envir);
         }
       
         # and we're done
         return(ga.data.df);
+      },
+      getMCFDataInBatches = function(batchSize, total, ids, start.date, end.date, metrics, max, 
+                    dimensions, sort, filters, segment, fields, date.format, envir) {
+        runs.max <- ceiling(max/batchSize);
+        chunk.list <- vector('list', runs.max);
+        for (i in 0:(runs.max - 1)) {
+          start <- i * batchSize + 1;
+          end <- start + batchSize - 1;
+          
+          if (end > max) { # adjust batch size if we're pulling the last batch
+            batchSize <- max - batchSize;
+            end <- max;
+          }
+
+          message(paste('Run (', i + 1, '/', runs.max, '): observations [', start, ';', end, ']. Batch size: ', batchSize, sep = ""));
+          chunk <- .self$getMCFData(ids = ids, start.date = start.date, end.date = end.date,
+                       metrics = metrics, dimensions = dimensions, sort = sort,
+                       filters = filters, segment = segment, fields = fields, 
+                       date.format = date.format, envir = envir, 
+                       messages = FALSE, return.url = FALSE, batch = FALSE, # static
+                       start = start, max = batchSize); # dynamic
+          message(paste('Recieved:', nrow(chunk), 'observations'));
+          chunk.list[[i + 1]] <- chunk;
+        }
+        return(do.call(rbind, chunk.list, envir = envir));
+      },
+      getMCFDataInWalks = function(total, max, batch, ids, start.date, end.date,
+                    metrics, dimensions, sort, filters, segment, fields, 
+                    date.format, envir) {
+        # this function will extract data day-by-day (to avoid sampling)
+        walks.max <- ceiling(as.numeric(difftime(end.date, start.date, units='days')));
+        chunk.list <- vector('list', walks.max + 1);
+
+        for (i in 0:(walks.max)) {
+          date <- format(as.POSIXct(start.date) + days(i), '%Y-%m-%d');
+
+          message(paste('Run (', i + 1, '/', walks.max + 1, '): for date ', date, sep = ""));
+          chunk <- .self$getMCFData(ids = ids, start.date = date, end.date = date,
+                       metrics = metrics, dimensions = dimensions, sort = sort,
+                       filters = filters, segment = segment, fields = fields, 
+                       date.format = date.format, envir = envir, max = max, rbr = TRUE,
+                       messages = FALSE, return.url = FALSE, batch = batch)
+          message(paste('Recieved:', nrow(chunk), 'observations'));
+          chunk.list[[i + 1]] <- chunk;
+        }
+        return(do.call(rbind, chunk.list, envir = envir));
       }
     )
   );
