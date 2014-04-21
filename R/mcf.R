@@ -69,7 +69,7 @@
 
         # get data and convert from json to list-format
         request <- httr::GET(url);
-        ga.data <- httr::content(request);
+        ga.data <- fromJSON(httr::content(request,'text'));
     
         # output error and stop
         if (!is.null(ga.data$error)) {

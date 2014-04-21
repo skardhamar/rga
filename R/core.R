@@ -71,7 +71,7 @@
 				# switched to use httr
 				options(RCurlOptions = list(verbose = FALSE, capath = system.file("CurlSSL", "cacert.pem", package = "RCurl"), ssl.verifypeer = FALSE))
 				request <- httr::GET(url);
-				ga.data <- httr::content(request);
+				ga.data <- fromJSON(httr::content(request,'text'));
 
 				###### ga.data <- getURL(url, 
 				###### 				  .opts = list(verbose = FALSE, 

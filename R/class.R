@@ -71,7 +71,7 @@
 									 );
                 
 			# remember to pass refresh token
-			token.data <- content(raw.response);
+			token.data <- fromJSON(content(raw.response,'text'));
 
 			now <- as.numeric(Sys.time());
 				.self$setToken(c(token.data, refresh_token = .self$token$refresh_token, timestamp = c('first' = .self$token$timestamp.first, 'refresh' = now)));

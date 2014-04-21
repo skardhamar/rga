@@ -62,7 +62,7 @@ rga.open <- function(instance = 'ga',
                      )
                    );
 
-    token.data <- content(raw.response);
+    token.data <- fromJSON(content(raw.response,'text'));
 	
   	now <- as.numeric(Sys.time());
   	token <- c(token.data, timestamp = c('first' = now, 'refresh' = now));
