@@ -42,6 +42,10 @@
 					ids <- paste('ga:', ids, sep = ''); 
 				}
 
+				# remove whitespace from metrics and dimensions
+				metrics <- gsub("\\s","",metrics)
+				dimensions <- gsub("\\s","",dimensions)
+
 				# build url with variables
 				url <- paste('https://www.googleapis.com/analytics/v3/data/ga',
                				 '?access_token=', .self$getToken()$access_token,
