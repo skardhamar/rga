@@ -42,6 +42,10 @@
 					ids <- paste('ga:', ids, sep = ''); 
 				}
 
+				# remove whitespace from metrics and dimensions
+				metrics <- gsub("\\s","",metrics)
+				dimensions <- gsub("\\s","",dimensions)
+
 				# build url with variables
 				url <- paste('https://www.googleapis.com/analytics/v3/data/ga',
                				 '?access_token=', .self$getToken()$access_token,
@@ -71,7 +75,7 @@
 				# switched to use httr
 				options(RCurlOptions = list(verbose = FALSE, capath = system.file("CurlSSL", "cacert.pem", package = "RCurl"), ssl.verifypeer = FALSE))
 				request <- httr::GET(url);
-				ga.data <- httr::content(request);
+				ga.data <- fromJSON(httr::content(request,'text'));
 
 				###### ga.data <- getURL(url, 
 				###### 				  .opts = list(verbose = FALSE, 

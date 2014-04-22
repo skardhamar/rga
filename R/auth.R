@@ -53,16 +53,17 @@ rga.open <- function(instance = 'ga',
 
 .rga.authenticate <- function(client.id, client.secret, code, redirect.uri) {
 	opts <- list(verbose = FALSE);
-	raw.data <- postForm('https://accounts.google.com/o/oauth2/token', 
-                         .opts = opts, 
-                         code = code, 
-                         client_id = client.id,
-                         client_secret = client.secret, 
-                         redirect_uri = redirect.uri,
-                         grant_type = 'authorization_code', 
-                         style = 'POST');
-  
-	token.data <- fromJSON(raw.data);
+	raw.response <- POST('https://accounts.google.com/o/oauth2/token',
+                     body = list(code = code, 
+                       client_id = client.id,
+                       client_secret = client.secret, 
+                       redirect_uri = redirect.uri,
+                       grant_type = 'authorization_code'
+                     )
+                   );
+
+    token.data <- fromJSON(content(raw.response,'text'));
+	
   	now <- as.numeric(Sys.time());
   	token <- c(token.data, timestamp = c('first' = now, 'refresh' = now));
   
