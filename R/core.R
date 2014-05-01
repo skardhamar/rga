@@ -213,7 +213,7 @@
 										   date.format = date.format, envir = envir, 
 										   messages = FALSE, return.url = FALSE, batch = FALSE, # static
 										   start = start, max = batchSize); # dynamic
-					message(paste('Recieved:', nrow(chunk), 'observations'));
+					message(paste('Received:', nrow(chunk), 'observations'));
 					chunk.list[[i + 1]] <- chunk;
 				}
 				return(do.call(rbind, chunk.list, envir = envir));
@@ -234,7 +234,7 @@
 										   filters = filters, segment = segment, fields = fields, 
 										   date.format = date.format, envir = envir, max = max, rbr = TRUE,
 										   messages = FALSE, return.url = FALSE, batch = batch)
-					message(paste('Recieved:', nrow(chunk), 'observations'));
+					message(paste('Received:', nrow(chunk), 'observations'));
 					chunk.list[[i + 1]] <- chunk;
 				}
 
