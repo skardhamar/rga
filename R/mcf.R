@@ -7,11 +7,11 @@
                                   segment = "", fields = "", date.format = "%Y-%m-%d",
                                   start = 1, max, messages = TRUE, batch, walk = FALSE,
                                   output.raw, output.formats, return.url = FALSE, rbr = FALSE, envir = .GlobalEnv) {
-
+                
                 if (missing(ids)) {
                     stop("please enter a profile id")
                 }
-
+                
                 if (missing(batch) || batch == FALSE) {
                     isBatch <- FALSE
                     if (missing(max)) {
@@ -34,7 +34,7 @@
                             stop("batch size can max be set to 10000")
                         }
                     }
-
+                    
                     if (missing(max)) {
                         adjustMax <- TRUE
                         # arbitrary target, adjust later
@@ -43,16 +43,16 @@
                         adjustMax <- FALSE
                     }
                 }
-
+                
                 # ensure that profile id begings with 'ga:'
                 if (!as.logical(length(as.numeric(grep("ga:", ids))))) {
                     ids <- paste("ga:", ids, sep = "")
                 }
-
+                
                 # remove whitespace from metrics and dimensions
                 metrics <- gsub("\\s", "", metrics)
                 dimensions <- gsub("\\s", "", dimensions)
-
+                
                 # build url with variables
                 url <- paste("https://www.googleapis.com/analytics/v3/data/mcf",
                              "?access_token=", .self$getToken()$access_token,
@@ -65,7 +65,7 @@
                              "&max-results=", max,
                              "&samplingLevel=HIGHER_PRECISION",
                              sep = "", collapse = "")
-
+                
                 if (sort != "") {
                     url <- paste(url, "&sort=", sort, sep = "", collapse = "")
                 }
@@ -75,24 +75,24 @@
                 if (fields != "") {
                     url <- paste(url, "&fields=", fields, sep = "", collapse = "")
                 }
-
+                
                 if (filters != "") {
                     url <- paste(url, "&filters=", curlEscape(filters), sep = "", collapse = "")
                 }
-
+                
                 if (return.url) {
                     return(url)
                 }
-
+                
                 # get data and convert from json to list-format
                 request <- httr::GET(url)
                 ga.data <- jsonlite::fromJSON(httr::content(request, "text"))
-
+                
                 # output error and stop
                 if (!is.null(ga.data$error)) {
                     stop(paste("error in fetching data: ", ga.data$error$message, sep = ""))
                 }
-
+                
                 if (ga.data$containsSampledData == "TRUE") {
                     isSampled <- TRUE
                     if (!walk) {
@@ -101,14 +101,14 @@
                 } else {
                     isSampled <- FALSE
                 }
-
+                
                 if (isSampled && walk) {
                     return(.self$getMCFDataInWalks(total = ga.data$totalResults, max = max, batch = batch,
                                                    ids = ids, start.date = start.date, end.date = end.date, date.format = date.format,
                                                    metrics = metrics, dimensions = dimensions, sort = sort, filters = filters,
                                                    segment = segment, fields = fields, envir = envir))
                 }
-
+                
                 # check if all data is being extracted
                 if (length(ga.data$rows) < ga.data$totalResults && (messages || isBatch)) {
                     if (!isBatch) {
@@ -125,12 +125,12 @@
                                                          segment = segment, fields = fields, envir = envir))
                     }
                 }
-
+                
                 # get column names
                 ga.headers <- ga.data$columnHeaders
                 # remove mcf: from column headersView
                 ga.headers$name <- sub("mcf:", "", ga.headers$name)
-
+                
                 # did not return any results
                 if (!inherits(ga.data$rows, "list") && !rbr) {
                     stop(paste("no results:", ga.data$totalResults))
@@ -140,7 +140,7 @@
                     names(row) <- ga.headers$name
                     return(row)
                 }
-
+                
                 # convert to data.frame
                 if (!any(grep("MCF_SEQUENCE", ga.headers$dataType))) {
                     ga.data.df <- as.data.frame(do.call(rbind, lapply(ga.data$rows, unlist)), stringsAsFactors = FALSE)
@@ -151,14 +151,13 @@
                     primitiveValues <- do.call(rbind, primitiveValues)
                     colnames(primitiveValues) <- ga.headers$name[grep("MCF_SEQUENCE", ga.headers$dataType, invert = TRUE)]
                     conversionPathValues <- lapply(lapply(ga.data$rows, "[[", "conversionPathValue"), "[", grep("MCF_SEQUENCE", ga.headers$dataType))
-                    conversionPathValues <- lapply(conversionPathValues, function(x) lapply(x, function(i) apply(i, 1, function(t) paste0(t, collapse = ":"))))
-                    conversionPathValues <- lapply(conversionPathValues, function(x) lapply(x, function(i) paste(i, collapse = ",")))
+                    conversionPathValues <- lapply(conversionPathValues, function(x) lapply(x, function(i) apply(i, 1, paste, sep = "", collapse = ":")))
+                    conversionPathValues <- lapply(conversionPathValues, function(x) lapply(x, paste, collapse = " > "))
                     conversionPathValues <- do.call(rbind, lapply(conversionPathValues, unlist))
                     colnames(conversionPathValues) <- ga.headers$name[grep("MCF_SEQUENCE", ga.headers$dataType)]
-                    ga.data.df <- as.data.frame(cbind(primitiveValues, conversionPathValues), stringsAsFactors = FALSE)
-                    ga.data.df <- ga.data.df[, ga.headers$name]
+                    ga.data.df <- data.frame(primitiveValues, conversionPathValues, stringsAsFactors = FALSE)[, ga.headers$name]
                 }
-
+                
                 # find formats
                 formats <- ga.headers
                 # convert to r friendly
@@ -166,14 +165,14 @@
                 formats$dataType[formats$dataType == "STRING"] <- "character"
                 formats$dataType[formats$dataType == "MCF_SEQUENCE"] <- "character"
                 formats$dataType[formats$name == "conversionDate"] <- "Date"
-
+                
                 # mos-def optimize
                 if ("conversionDate" %in% ga.headers$name) {
                     ga.data.df$conversionDate <- format(as.Date(ga.data.df$conversionDate, "%Y%m%d"), date.format)
                 }
-
+                
                 # looping through columns and setting classes
-               for (i in 1:nrow(formats)) {
+                for (i in 1:nrow(formats)) {
                     column <- formats$name[i]
                     class <- formats$dataType[[i]]
                     if (!exists(paste("as.", class, sep = ""), mode = "function")) {
@@ -183,28 +182,29 @@
                     }
                     ga.data.df[[column]] <- as.fun(ga.data.df[[column]])
                 }
-
+                
                 if (!missing(output.formats)) {
                     assign(output.formats, formats, envir = envir)
                 }
-
+                
                 # and we're done
                 return(ga.data.df)
-            }, getMCFDataInBatches = function(batchSize, total, ids, start.date, end.date, date.format,
-                                              metrics, max, dimensions, sort,
-                                              filters, segment, fields, envir) {
+            },
+            getMCFDataInBatches = function(batchSize, total, ids, start.date, end.date, date.format,
+                                           metrics, max, dimensions, sort,
+                                           filters, segment, fields, envir) {
                 runs.max <- ceiling(max/batchSize)
                 chunk.list <- vector("list", runs.max)
                 for (i in 0:(runs.max - 1)) {
                     start <- i * batchSize + 1
                     end <- start + batchSize - 1
-
+                    
                     if (end > max) {
                         # adjust batch size if we're pulling the last batch
                         batchSize <- max - batchSize
                         end <- max
                     }
-
+                    
                     message(paste("Run (", i + 1, "/", runs.max, "): observations [", start, ";", end, "]. Batch size: ", batchSize, sep = ""))
                     chunk <- .self$getMCFData(ids = ids, start.date = start.date, end.date = end.date, date.format = date.format,
                                               metrics = metrics, dimensions = dimensions, sort = sort, filters = filters,
@@ -214,15 +214,16 @@
                     chunk.list[[i + 1]] <- chunk
                 }
                 return(do.call(rbind, chunk.list, envir = envir))
-            }, getMCFDataInWalks = function(total, max, batch, ids, start.date, end.date, metrics, dimensions, sort, filters, segment, fields, date.format,
-                                            envir) {
+            },
+            getMCFDataInWalks = function(total, max, batch, ids, start.date, end.date, date.format,
+                                         metrics, dimensions, sort, filters, segment, fields, envir) {
                 # this function will extract data day-by-day (to avoid sampling)
                 walks.max <- ceiling(as.numeric(difftime(end.date, start.date, units = "days")))
                 chunk.list <- vector("list", walks.max + 1)
-
+                
                 for (i in 0:(walks.max)) {
                     date <- format(as.POSIXct(start.date) + days(i), "%Y-%m-%d")
-
+                    
                     message(paste("Run (", i + 1, "/", walks.max + 1, "): for date ", date, sep = ""))
                     chunk <- .self$getMCFData(ids = ids, start.date = date, end.date = date, date.format = date.format,
                                               metrics = metrics, dimensions = dimensions, sort = sort, filters = filters,
