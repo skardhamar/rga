@@ -1,17 +1,17 @@
 .extend.rga.mcf <- function() {
     rga$methods(
         list(
-            getMCFData = function(ids, start.date = format(Sys.time(), "%Y-%m-%d"), end.date = format(Sys.time(), "%Y-%m-%d"),
+            getMCFData = function(ids, start.date = format(Sys.Date() - 8, "%Y-%m-%d"), end.date = format(Sys.Date() - 1, "%Y-%m-%d"),
                                   metrics = "mcf:totalConversions,mcf:totalConversionValue",
                                   dimensions = "mcf:source,mcf:keyword", sort = "", filters = "",
                                   segment = "", fields = "", date.format = "%Y-%m-%d",
                                   start = 1, max, messages = TRUE, batch, walk = FALSE,
                                   output.raw, output.formats, return.url = FALSE, rbr = FALSE, envir = .GlobalEnv) {
-                
+
                 if (missing(ids)) {
                     stop("please enter a profile id")
                 }
-                
+
                 if (missing(batch) || batch == FALSE) {
                     isBatch <- FALSE
                     if (missing(max)) {
@@ -34,7 +34,7 @@
                             stop("batch size can max be set to 10000")
                         }
                     }
-                    
+
                     if (missing(max)) {
                         adjustMax <- TRUE
                         # arbitrary target, adjust later
@@ -43,56 +43,58 @@
                         adjustMax <- FALSE
                     }
                 }
-                
+
                 # ensure that profile id begings with 'ga:'
                 if (!as.logical(length(as.numeric(grep("ga:", ids))))) {
                     ids <- paste("ga:", ids, sep = "")
                 }
-                
+
                 # remove whitespace from metrics and dimensions
                 metrics <- gsub("\\s", "", metrics)
                 dimensions <- gsub("\\s", "", dimensions)
-                
+
                 # build url with variables
-                url <- paste("https://www.googleapis.com/analytics/v3/data/mcf",
-                             "?access_token=", .self$getToken()$access_token,
-                             "&ids=", ids,
-                             "&start-date=", start.date,
-                             "&end-date=", end.date,
-                             "&metrics=", metrics,
-                             "&dimensions=", dimensions,
-                             "&start-index=", start,
-                             "&max-results=", max,
-                             "&samplingLevel=HIGHER_PRECISION",
-                             sep = "", collapse = "")
-                
+
+                baseUrl <- "https://www.googleapis.com/analytics/v3/data/mcf"
+                query <- paste(paste("access_token", .self$getToken()$access_token, sep = "="),
+                               paste("ids", ids, sep = "="),
+                               paste("start-date", start.date, sep = "="),
+                               paste("end-date", end.date, sep = "="),
+                               paste("metrics", metrics, sep = "="),
+                               paste("dimensions", dimensions, sep = "="),
+                               paste("start-index", start, sep = "="),
+                               paste("max-results", max, sep = "="),
+                               paste("samplingLevel=HIGHER_PRECISION"),
+                               sep = "&", collapse = "")
+
                 if (sort != "") {
-                    url <- paste(url, "&sort=", sort, sep = "", collapse = "")
+                    query <- paste(query, paste("sort", sort, sep = "="), sep = "&", collapse = "")
                 }
                 if (segment != "") {
-                    url <- paste(url, "&segment=", segment, sep = "", collapse = "")
+                    query <- paste(query, paste("segment", segment, sep = "="), sep = "&", collapse = "")
                 }
                 if (fields != "") {
-                    url <- paste(url, "&fields=", fields, sep = "", collapse = "")
+                    query <- paste(query, paste("fields", fields, sep = "="), sep = "&", collapse = "")
                 }
-                
                 if (filters != "") {
-                    url <- paste(url, "&filters=", curlEscape(filters), sep = "", collapse = "")
+                    query <- paste(query, paste("filters", curlEscape(filters), sep = "="), sep = "&", collapse = "")
                 }
-                
+
+                url <- modify_url(baseUrl, query = query)
+
                 if (return.url) {
                     return(url)
                 }
-                
+
                 # get data and convert from json to list-format
-                request <- httr::GET(url)
-                ga.data <- jsonlite::fromJSON(httr::content(request, "text"))
-                
+                request <- GET(url)
+                ga.data <- jsonlite::fromJSON(content(request, "text"))
+
                 # output error and stop
                 if (!is.null(ga.data$error)) {
                     stop(paste("error in fetching data: ", ga.data$error$message, sep = ""))
                 }
-                
+
                 if (ga.data$containsSampledData == "TRUE") {
                     isSampled <- TRUE
                     if (!walk) {
@@ -101,14 +103,14 @@
                 } else {
                     isSampled <- FALSE
                 }
-                
+
                 if (isSampled && walk) {
                     return(.self$getMCFDataInWalks(total = ga.data$totalResults, max = max, batch = batch,
                                                    ids = ids, start.date = start.date, end.date = end.date, date.format = date.format,
                                                    metrics = metrics, dimensions = dimensions, sort = sort, filters = filters,
                                                    segment = segment, fields = fields, envir = envir))
                 }
-                
+
                 # check if all data is being extracted
                 if (length(ga.data$rows) < ga.data$totalResults && (messages || isBatch)) {
                     if (!isBatch) {
@@ -125,12 +127,12 @@
                                                          segment = segment, fields = fields, envir = envir))
                     }
                 }
-                
+
                 # get column names
                 ga.headers <- ga.data$columnHeaders
                 # remove mcf: from column headersView
                 ga.headers$name <- sub("mcf:", "", ga.headers$name)
-                
+
                 # did not return any results
                 if (!inherits(ga.data$rows, "list") && !rbr) {
                     stop(paste("no results:", ga.data$totalResults))
@@ -140,7 +142,7 @@
                     names(row) <- ga.headers$name
                     return(row)
                 }
-                
+
                 # convert to data.frame
                 if (!any(grep("MCF_SEQUENCE", ga.headers$dataType))) {
                     ga.data.df <- as.data.frame(do.call(rbind, lapply(ga.data$rows, unlist)), stringsAsFactors = FALSE)
@@ -157,7 +159,7 @@
                     colnames(conversionPathValues) <- ga.headers$name[grep("MCF_SEQUENCE", ga.headers$dataType)]
                     ga.data.df <- data.frame(primitiveValues, conversionPathValues, stringsAsFactors = FALSE)[, ga.headers$name]
                 }
-                
+
                 # find formats
                 formats <- ga.headers
                 # convert to r friendly
@@ -165,12 +167,12 @@
                 formats$dataType[formats$dataType == "STRING"] <- "character"
                 formats$dataType[formats$dataType == "MCF_SEQUENCE"] <- "character"
                 formats$dataType[formats$name == "conversionDate"] <- "Date"
-                
+
                 # mos-def optimize
                 if ("conversionDate" %in% ga.headers$name) {
                     ga.data.df$conversionDate <- format(as.Date(ga.data.df$conversionDate, "%Y%m%d"), date.format)
                 }
-                
+
                 # looping through columns and setting classes
                 for (i in 1:nrow(formats)) {
                     column <- formats$name[i]
@@ -182,11 +184,11 @@
                     }
                     ga.data.df[[column]] <- as.fun(ga.data.df[[column]])
                 }
-                
+
                 if (!missing(output.formats)) {
                     assign(output.formats, formats, envir = envir)
                 }
-                
+
                 # and we're done
                 return(ga.data.df)
             },
@@ -198,13 +200,13 @@
                 for (i in 0:(runs.max - 1)) {
                     start <- i * batchSize + 1
                     end <- start + batchSize - 1
-                    
+
                     if (end > max) {
                         # adjust batch size if we're pulling the last batch
                         batchSize <- max - batchSize
                         end <- max
                     }
-                    
+
                     message(paste("Run (", i + 1, "/", runs.max, "): observations [", start, ";", end, "]. Batch size: ", batchSize, sep = ""))
                     chunk <- .self$getMCFData(ids = ids, start.date = start.date, end.date = end.date, date.format = date.format,
                                               metrics = metrics, dimensions = dimensions, sort = sort, filters = filters,
@@ -220,10 +222,10 @@
                 # this function will extract data day-by-day (to avoid sampling)
                 walks.max <- ceiling(as.numeric(difftime(end.date, start.date, units = "days")))
                 chunk.list <- vector("list", walks.max + 1)
-                
+
                 for (i in 0:(walks.max)) {
                     date <- format(as.POSIXct(start.date) + days(i), "%Y-%m-%d")
-                    
+
                     message(paste("Run (", i + 1, "/", walks.max + 1, "): for date ", date, sep = ""))
                     chunk <- .self$getMCFData(ids = ids, start.date = date, end.date = date, date.format = date.format,
                                               metrics = metrics, dimensions = dimensions, sort = sort, filters = filters,

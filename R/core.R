@@ -1,8 +1,8 @@
 .extend.rga.core <- function() {
     rga$methods(
         list(
-            getData = function(ids, start.date = format(Sys.time(), "%Y-%m-%d"),
-                               end.date = format(Sys.time(), "%Y-%m-%d"), date.format = "%Y-%m-%d",
+            getData = function(ids, start.date = format(Sys.Date() - 8, "%Y-%m-%d"),
+                               end.date = format(Sys.Date() - 1, "%Y-%m-%d"), date.format = "%Y-%m-%d",
                                metrics = "ga:users,ga:sessions,ga:pageviews", dimensions = "ga:date",
                                sort = "", filters = "", segment = "", fields = "",
                                start = 1, max, messages = TRUE,  batch, walk = FALSE,
@@ -54,30 +54,31 @@
                 dimensions <- gsub("\\s", "", dimensions)
 
                 # build url with variables
-                url <- paste("https://www.googleapis.com/analytics/v3/data/ga",
-                             "?access_token=", .self$getToken()$access_token,
-                             "&ids=", ids,
-                             "&start-date=", start.date,
-                             "&end-date=", end.date,
-                             "&metrics=", metrics,
-                             "&dimensions=", dimensions,
-                             "&start-index=", start,
-                             "&max-results=", max,
-                             sep = "", collapse = "")
+                baseUrl <- "https://www.googleapis.com/analytics/v3/data/ga"
+                query <- paste(paste("access_token", .self$getToken()$access_token, sep = "="),
+                               paste("ids", ids, sep = "="),
+                               paste("start-date", start.date, sep = "="),
+                               paste("end-date", end.date, sep = "="),
+                               paste("metrics", metrics, sep = "="),
+                               paste("dimensions", dimensions, sep = "="),
+                               paste("start-index", start, sep = "="),
+                               paste("max-results", max, sep = "="),
+                               sep = "&", collapse = "")
 
                 if (sort != "") {
-                    url <- paste(url, "&sort=", sort, sep = "", collapse = "")
+                    query <- paste(query, paste("sort", sort, sep = "="), sep = "&", collapse = "")
                 }
                 if (segment != "") {
-                    url <- paste(url, "&segment=", segment, sep = "", collapse = "")
+                    query <- paste(query, paste("segment", segment, sep = "="), sep = "&", collapse = "")
                 }
                 if (fields != "") {
-                    url <- paste(url, "&fields=", fields, sep = "", collapse = "")
+                    query <- paste(query, paste("fields", fields, sep = "="), sep = "&", collapse = "")
+                }
+                if (filters != "") {
+                    query <- paste(query, paste("filters", curlEscape(filters), sep = "="), sep = "&", collapse = "")
                 }
 
-                if (filters != "") {
-                    url <- paste(url, "&filters=", curlEscape(filters), sep = "", collapse = "")
-                }
+                url <- modify_url(baseUrl, query = query)
 
                 if (return.url) {
                     return(url)
@@ -87,8 +88,8 @@
                 # thanks to Schaun Wheeler this will not provoke the weird SSL-bug
                 # switched to use httr and jsonlite
                 options(RCurlOptions = list(verbose = FALSE, capath = system.file("CurlSSL", "cacert.pem", package = "RCurl"), ssl.verifypeer = FALSE))
-                request <- httr::GET(url)
-                ga.data <- jsonlite::fromJSON(httr::content(request, "text"))
+                request <- GET(url)
+                ga.data <- jsonlite::fromJSON(content(request, "text"))
 
                 # possibility to extract the raw data
                 if (!missing(output.raw)) {
