@@ -45,11 +45,11 @@
                 }
 
                 # ensure that profile id begings with 'ga:'
-                if (!any(grep("ga:", ids))) {
+                if (!grepl("ga:", ids)) {
                     ids <- paste("ga:", ids, sep = "")
                 }
 
-                # remove whitespace from metrics and dimensions
+                # remove whitespaces from metrics and dimensions
                 metrics <- gsub("\\s", "", metrics)
                 dimensions <- gsub("\\s", "", dimensions)
 
@@ -63,7 +63,7 @@
                                paste("dimensions", dimensions, sep = "="),
                                paste("start-index", start, sep = "="),
                                paste("max-results", max, sep = "="),
-                               sep = "&", collapse = "")
+                               sep = "&", collapse = "")        
 
                 if (sort != "") {
                     query <- paste(query, paste("sort", sort, sep = "="), sep = "&", collapse = "")
@@ -75,6 +75,9 @@
                     query <- paste(query, paste("fields", fields, sep = "="), sep = "&", collapse = "")
                 }
                 if (filters != "") {
+                    filters <- gsub("\\s", "", filters)
+                    filters <- gsub("OR|\\|\\|", ",", filters)
+                    filters <- gsub("AND|&&", ";", filters)
                     query <- paste(query, paste("filters", curlEscape(filters), sep = "="), sep = "&", collapse = "")
                 }
 
@@ -84,10 +87,16 @@
                     return(url)
                 }
 
-                # get data and convert from json to list-format
                 # thanks to Schaun Wheeler this will not provoke the weird SSL-bug
+                if (.Platform$OS.type == "windows") {
+                    options(RCurlOptions = list(
+                        verbose = FALSE,
+                        capath = system.file("CurlSSL", "cacert.pem",
+                        package = "RCurl"), ssl.verifypeer = FALSE))
+                }
+
+                # get data and convert from json to list-format
                 # switched to use httr and jsonlite
-                options(RCurlOptions = list(verbose = FALSE, capath = system.file("CurlSSL", "cacert.pem", package = "RCurl"), ssl.verifypeer = FALSE))
                 request <- GET(url)
                 ga.data <- jsonlite::fromJSON(content(request, "text"))
 

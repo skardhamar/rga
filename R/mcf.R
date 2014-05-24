@@ -49,7 +49,7 @@
                     ids <- paste("ga:", ids, sep = "")
                 }
 
-                # remove whitespace from metrics and dimensions
+                # remove whitespaces from metrics and dimensions
                 metrics <- gsub("\\s", "", metrics)
                 dimensions <- gsub("\\s", "", dimensions)
 
@@ -77,6 +77,9 @@
                     query <- paste(query, paste("fields", fields, sep = "="), sep = "&", collapse = "")
                 }
                 if (filters != "") {
+                    filters <- gsub("\\s", "", filters)
+                    filters <- gsub("OR|\\|\\|", ",", filters)
+                    filters <- gsub("AND|&&", ";", filters)
                     query <- paste(query, paste("filters", curlEscape(filters), sep = "="), sep = "&", collapse = "")
                 }
 
@@ -84,6 +87,14 @@
 
                 if (return.url) {
                     return(url)
+                }
+
+                # thanks to Schaun Wheeler this will not provoke the weird SSL-bug
+                if (.Platform$OS.type == "windows") {
+                    options(RCurlOptions = list(
+                        verbose = FALSE,
+                        capath = system.file("CurlSSL", "cacert.pem",
+                        package = "RCurl"), ssl.verifypeer = FALSE))
                 }
 
                 # get data and convert from json to list-format
@@ -144,7 +155,7 @@
                 }
 
                 # convert to data.frame
-                if (!any(grep("MCF_SEQUENCE", ga.headers$dataType))) {
+                if (!grepl("MCF_SEQUENCE", ga.headers$dataType)) {
                     ga.data.df <- as.data.frame(do.call(rbind, lapply(ga.data$rows, unlist)), stringsAsFactors = FALSE)
                     # insert column names
                     names(ga.data.df) <- ga.headers$name
