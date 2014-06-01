@@ -2,9 +2,25 @@ Package: rga
 Title: R Google Analytics
 Description: A package for seemless API connection to Google Analytics
 Url: https://github.com/skardhamar/rga
+BugReports: https://github.com/skardhamar/rga/issues
 Version: 0.8
 Date: 2012-14-11
 Maintainer: Bror Skardhamar <skardhamar@gmail.com>
 Author: Bror Skardhamar <skardhamar@gmail.com>
-Depends: R (>= 2.13.0), bitops, RCurl, jsonlite, lubridate, httr
-License: GPL
+Depends:
+    R (>= 2.13.0),
+    RCurl,
+    jsonlite,
+    httr
+Imports:
+    methods
+License: GPL (>= 2)
+Collate:
+    'class.R'
+    'core.R'
+    'mcf.R'
+    'mgmt.R'
+    'status.R'
+    'auth.R'
+    'init.R'
+    'misc.R'
