@@ -75,8 +75,15 @@
                     query <- paste(query, paste("fields", fields, sep = "="), sep = "&", collapse = "")
                 }
                 if (filters != "") {
-                    filters <- gsub("OR|\\|\\|| OR | \\|\\| ", ",", filters)
-                    filters <- gsub("AND|&&| AND | && ", ";", filters)
+                    # available operators
+                    ops <- c("==", "!=", ">", "<", ">=", "<=", "=@", "!@", "=-", "!-", "\\|\\|", "&&", "OR", "AND")
+                    # make pattern for gsub
+                    opsw <- paste("(\\ )+(", paste(ops, collapse = "|"), ")(\\ )+", sep = "")
+                    # remove whitespaces around operators
+                    filters <- gsub(opsw, "\\2", filters)
+                    # replace logical operators
+                    filters <- gsub("OR|\\|\\|", ",", filters)
+                    filters <- gsub("AND|&&", ";", filters)
                     query <- paste(query, paste("filters", curlEscape(filters), sep = "="), sep = "&", collapse = "")
                 }
 
