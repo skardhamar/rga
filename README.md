@@ -71,7 +71,11 @@ In order to extract data from the instance, there is a couple of commands to use
 			   sort = "", filters = "", segment = "",
 			   start = 1, max = 1000)
 
-This will output the data in a data frame, with all the correct formats applied. The syntax follows the one dictated by Google - please refer to the documentation for further information.
+This will output the data in a data frame, with all the correct formats applied. 
+
+`ids` refers to one's site-specific Analytics "profile ID"; if one doesn't know it, this can be typically found in URLs in the GA interface as the number following a "p" in the URL (eg. the ID for a URL like `https://www.google.com/analytics/web/#report/visitors-overview/a18912926w37930778p37491797/` would be `37491797`.)
+
+The syntax for dimensions/filters/segments follows the one dictated by Google - please refer to the Google Analytics API documentation such as ["Dimensions & Metrics Reference"](https://developers.google.com/analytics/devguides/reporting/core/dimsmets) for further information. (Note that the argument to `metrics` is a comma-delimited character-string, not a vector of character-strings, so one specifies arguments like `"ga:pageviews,ga:sessions,ga:visitors"`.)
 
 The dates defaults to the current day, meaning that if you don't input these, only data from today will be extracted.
 
