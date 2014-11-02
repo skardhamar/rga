@@ -132,7 +132,7 @@ rga$methods(
             }
 
             # check if all data is being extracted
-            if (length(ga.data$rows) < ga.data$totalResults && (messages || isBatch)) {
+            if (nrow(ga.data$rows) < ga.data$totalResults && (messages || isBatch)) {
                 if (!isBatch) {
                     message(paste("Only pulling", length(ga.data$rows), "observations of", ga.data$totalResults, "total (set batch = TRUE to get all observations)"))
                 } else {
