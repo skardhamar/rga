@@ -120,7 +120,9 @@ rga$methods(
             if (ga.data$containsSampledData == "TRUE") {
                 isSampled <- TRUE
                 if (!walk) {
-                    message("Notice: Data set contains sampled data")
+                  message(sprintf("Notice: Data set sampled from %s sessions (%d%% of all sessions)", 
+                                  format(as.numeric(ga.data$sampleSize), big.mark=",", scientific=FALSE),
+                                  round((as.numeric(ga.data$sampleSize) / as.numeric(ga.data$sampleSpace) * 100))))
                 }
             } else {
                 isSampled <- FALSE
