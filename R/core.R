@@ -5,7 +5,8 @@ rga$methods(
                            metrics = "ga:users,ga:sessions,ga:pageviews", dimensions = "ga:date",
                            sort = "", filters = "", segment = "", fields = "",
                            start = 1, max, messages = TRUE,  batch, walk = FALSE,
-                           output.raw, output.formats, return.url = FALSE, rbr = FALSE, envir = .GlobalEnv) {
+                           output.raw, output.formats, return.url = FALSE, rbr = FALSE, envir = .GlobalEnv,
+                           samplingLevel = "DEFAULT") {
 
             if (missing(ids)) {
                 stop("please enter a profile id")
@@ -62,6 +63,7 @@ rga$methods(
                            paste("dimensions", dimensions, sep = "="),
                            paste("start-index", start, sep = "="),
                            paste("max-results", max, sep = "="),
+                           paste("samplingLevel", samplingLevel, sep = "="),
                            sep = "&")
 
             if (sort != "") {
@@ -128,7 +130,7 @@ rga$methods(
                 return(.self$getDataInWalks(total = ga.data$totalResults, max = max, batch = batch,
                                             ids = ids, start.date = start.date, end.date = end.date, date.format = date.format,
                                             metrics = metrics, dimensions = dimensions, sort = sort, filters = filters,
-                                            segment = segment, fields = fields, envir = envir))
+                                            segment = segment, fields = fields, envir = envir, samplingLevel = samplingLevel))
             }
 
             # check if all data is being extracted
@@ -226,7 +228,7 @@ rga$methods(
                 message(paste("Run (", i + 1, "/", runs.max, "): observations [", start, ";", end, "]. Batch size: ", batchSize, sep = ""))
                 chunk <- .self$getData(ids = ids, start.date = start.date, end.date = end.date, metrics = metrics, dimensions = dimensions, sort = sort,
                                        filters = filters, segment = segment, fields = fields, date.format = date.format, envir = envir, messages = FALSE, return.url = FALSE,
-                                       batch = FALSE, start = start, max = batchSize)
+                                       batch = FALSE, start = start, max = batchSize, samplingLevel = samplingLevel)
                 message(paste("Received:", nrow(chunk), "observations"))
                 chunk.list[[i + 1]] <- chunk
             }
@@ -245,7 +247,7 @@ rga$methods(
                 chunk <- .self$getData(ids = ids, start.date = date, end.date = date, date.format = date.format,
                                        metrics = metrics, dimensions = dimensions, sort = sort, filters = filters,
                                        segment = segment, fields = fields, envir = envir, max = max,
-                                       rbr = TRUE, messages = FALSE, return.url = FALSE, batch = batch)
+                                       rbr = TRUE, messages = FALSE, return.url = FALSE, batch = batch, samplingLevel = samplingLevel)
                 message(paste("Received:", nrow(chunk), "observations"))
                 chunk.list[[i + 1]] <- chunk
             }
