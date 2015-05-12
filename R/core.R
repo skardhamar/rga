@@ -146,7 +146,7 @@ rga$methods(
                     return(.self$getDataInBatches(total = ga.data$totalResults, max = max, batchSize = batch,
                                                   ids = ids, start.date = start.date, end.date = end.date, date.format = date.format,
                                                   metrics = metrics, dimensions = dimensions, sort = sort, filters = filters,
-                                                  segment = segment, fields = fields, envir = envir))
+                                                  segment = segment, fields = fields, envir = envir, samplingLevel = samplingLevel))
                 }
             }
 
@@ -213,7 +213,8 @@ rga$methods(
             return(first$date)
         },
         getDataInBatches = function(batchSize, total, ids, start.date, end.date, date.format,
-                                    metrics, max, dimensions, sort, filters, segment, fields, envir) {
+                                    metrics, max, dimensions, sort, filters, segment, fields, envir,
+                                    samplingLevel) {
             runs.max <- ceiling(max/batchSize)
             chunk.list <- vector("list", runs.max)
             for (i in 0:(runs.max - 1)) {
@@ -235,7 +236,8 @@ rga$methods(
             return(do.call(rbind, chunk.list, envir = envir))
         },
         getDataInWalks = function(total, max, batch, ids, start.date, end.date, date.format,
-                                  metrics, dimensions, sort, filters, segment, fields, envir) {
+                                  metrics, dimensions, sort, filters, segment, fields, envir,
+                                  samplingLevel) {
             # this function will extract data day-by-day (to avoid sampling)
             walks.max <- ceiling(as.numeric(difftime(end.date, start.date, units = "days")))
             chunk.list <- vector("list", walks.max + 1)
