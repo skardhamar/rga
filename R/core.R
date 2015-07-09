@@ -134,7 +134,7 @@ rga$methods(
             }
 
             # check if all data is being extracted
-            if (nrow(ga.data$rows) < ga.data$totalResults && (messages || isBatch)) {
+            if (NROW(ga.data$rows) < ga.data$totalResults && (messages || isBatch)) {
                 if (!isBatch) {
                     message(paste("Only pulling", length(ga.data$rows), "observations of", ga.data$totalResults, "total (set batch = TRUE to get all observations)"))
                 } else {
@@ -160,9 +160,9 @@ rga$methods(
                 stop(paste("no results:", ga.data$totalResults))
             } else if (!inherits(ga.data$rows, "matrix") && rbr) {
                 # return data.frame with NA, if row-by-row setting is true
-                row <- as.data.frame(matrix(rep(NA, length(ga.headers$name), nrow = 1)))
-                names(row) <- ga.headers$name
-                return(row)
+                row <- as.data.frame(matrix(NA, ncol = length(ga.headers$name), nrow = 1))
+		colnames(row) <- ga.headers$name
+		return(row)
             }
 
             # convert to data.frame
