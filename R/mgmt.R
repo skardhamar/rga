@@ -14,31 +14,25 @@ rga$methods(
 
             # Check if results from last call were included
             if(!missing(lastResult)) {
-              df <- rbind(ga.json$items[keep], lastResult)
+                df <- rbind(ga.json$items[keep], lastResult)
             } else {
-              df <- ga.json$items[keep]
+                df <- ga.json$items[keep]
             }
 
             # Has the max param been set? Are there more results than the max?
             if(!missing(max) && nrow(df) >= max) {
-              print('cutting off process')
-              return(df[1:max,])
+                return(df[1:max,])
             # If there's no max, or the results are still less than the max, continue sending calls
             } else {
-              # If the API is pointing toward another results page, get it
-              if (is.element('nextLink', names(ga.json))) {
-                # Set new start point for next call
-                newStart <- start + 1000
-                print(paste('resultsLen', nrow(df)))
-                print(paste('newStart', newStart))
-                print(paste('url', url))
-                print(paste('nextLink', ga.json$nextLink))
-                if(!missing(max)){print(paste('max', max))}
-                return(.self$getMGMTData(url = url, keep = keep, newStart, max = max, lastResult = df))
-              # If the API doesn't have another page of results, return the total set
-              } else {
-                return(df)
-              }
+                # If the API is pointing toward another results page, get it
+                if (is.element('nextLink', names(ga.json))) {
+                    # Set new start point for next call
+                    newStart <- start + 1000
+                    return(.self$getMGMTData(url = url, keep = keep, newStart, max = max, lastResult = df))
+                # If the API doesn't have another page of results, return the total set
+                } else {
+                    return(df)
+                }
             }
         },
         getAccounts = function(start = 1, max) {
