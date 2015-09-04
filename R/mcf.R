@@ -160,7 +160,7 @@ rga$methods(
             }
 
             # convert to data.frame
-            if (!grepl("MCF_SEQUENCE", ga.headers$dataType)) {
+            if (!any(grepl("MCF_SEQUENCE", ga.headers$dataType))) {
                 ga.data.df <- as.data.frame(do.call(rbind, lapply(ga.data$rows, unlist)), stringsAsFactors = FALSE)
                 # insert column names
                 names(ga.data.df) <- ga.headers$name
