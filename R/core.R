@@ -99,7 +99,7 @@ rga$methods(
                 options(RCurlOptions = list(
                     verbose = FALSE,
                     capath = system.file("CurlSSL", "cacert.pem",
-                                         package = "RCurl"), ssl.verifypeer = FALSE))
+                    package = "RCurl"), ssl.verifypeer = FALSE))
             }
 
             # get data and convert from json to list-format
@@ -163,8 +163,8 @@ rga$methods(
             } else if (!inherits(ga.data$rows, "matrix") && rbr) {
                 # return data.frame with NA, if row-by-row setting is true
                 row <- as.data.frame(matrix(NA, ncol = length(ga.headers$name), nrow = 1))
-		            colnames(row) <- ga.headers$name
-		            return(row)
+                colnames(row) <- ga.headers$name
+                return(row)
             }
 
             # convert to data.frame
@@ -174,11 +174,11 @@ rga$methods(
 
             # check if sampled; add attributes if so
             if (isSampled) {
-              attr(ga.data.df, "ga:containsSampledData") <- TRUE
-              attr(ga.data.df, "ga:sampleSize") <- as.numeric(ga.data$sampleSize)
-              attr(ga.data.df, "ga:sampleSpace") <- as.numeric(ga.data$sampleSpace)
+                attr(ga.data.df, "ga:containsSampledData") <- TRUE
+                attr(ga.data.df, "ga:sampleSize") <- as.numeric(ga.data$sampleSize)
+                attr(ga.data.df, "ga:sampleSpace") <- as.numeric(ga.data$sampleSpace)
             } else {
-              attr(ga.data.df, "ga:containsSampledData") <- FALSE
+                attr(ga.data.df, "ga:containsSampledData") <- FALSE
             }
             
             # find formats
