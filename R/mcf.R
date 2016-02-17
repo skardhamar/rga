@@ -151,6 +151,15 @@ rga$methods(
             # remove mcf: from column headersView
             ga.headers$name <- sub("mcf:", "", ga.headers$name)
 
+            # check if sampled; add attributes if so
+            if (isSampled) {
+              attr(ga.data.df, "ga:containsSampledData") <- TRUE
+              attr(ga.data.df, "ga:sampleSize") <- as.numeric(ga.data$sampleSize)
+              attr(ga.data.df, "ga:sampleSpace") <- as.numeric(ga.data$sampleSpace)
+            } else {
+              attr(ga.data.df, "ga:containsSampledData") <- FALSE
+            }
+            
             # did not return any results
             if (!inherits(ga.data$rows, "list") && !rbr) {
                 stop(paste("no results:", ga.data$totalResults))
