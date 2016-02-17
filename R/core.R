@@ -174,13 +174,9 @@ rga$methods(
 
             # check if sampled; add attributes if so
             if (isSampled) {
-              sampleSize <- as.numeric(ga.data$sampleSize)
-              sampleSpace <- as.numeric(ga.data$sampleSpace)
-              
-              attr(ga.data.df, "containsSampledData") <- TRUE
-              attr(ga.data.df, "sampleSize") <- sampleSize
-              attr(ga.data.df, "sampleSpace") <- sampleSpace
-              
+              attr(ga.data.df, "ga:containsSampledData") <- TRUE
+              attr(ga.data.df, "ga:sampleSize") <- as.numeric(ga.data$sampleSize)
+              attr(ga.data.df, "ga:sampleSpace") <- as.numeric(ga.data$sampleSpace)
             } else {
               attr(ga.data.df, "ga:containsSampledData") <- FALSE
             }
