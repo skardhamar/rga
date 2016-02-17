@@ -170,6 +170,7 @@ rga$methods(
             # insert column names
             names(ga.data.df) <- ga.headers$name
 
+            # check if sampled; add attributes if so
             if (isSampled) {
               attr(ga.data.df, "ga:containsSampledData") <- TRUE
               attr(ga.data.df, "ga:sampleSize") <- as.numeric(ga.data$sampleSize)
