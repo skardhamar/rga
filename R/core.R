@@ -171,7 +171,6 @@ rga$methods(
             names(ga.data.df) <- ga.headers$name
 
             if (isSampled) {
-              warning("this was sampled")
               attr(ga.data.df, "ga:containsSampledData") <- TRUE
               attr(ga.data.df, "ga:sampleSize") <- as.numeric(ga.data$sampleSize)
               attr(ga.data.df, "ga:sampleSpace") <- as.numeric(ga.data$sampleSpace)
