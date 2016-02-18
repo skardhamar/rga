@@ -114,9 +114,9 @@ rga$methods(
             if (ga.data$containsSampledData == "TRUE") {
                 isSampled <- TRUE
                 if (!walk) {
-                  message(sprintf("Notice: Data set sampled from %s sessions (%d%% of all sessions)", 
-                                  format(as.numeric(ga.data$sampleSize), big.mark=",", scientific=FALSE),
-                                  round((as.numeric(ga.data$sampleSize) / as.numeric(ga.data$sampleSpace) * 100))))
+                    message(sprintf("Notice: Data set sampled from %s sessions (%d%% of all sessions)", 
+                                    format(as.numeric(ga.data$sampleSize), big.mark=",", scientific=FALSE),
+                                    round((as.numeric(ga.data$sampleSize) / as.numeric(ga.data$sampleSpace) * 100))))
                 }
             } else {
                 isSampled <- FALSE
@@ -153,11 +153,11 @@ rga$methods(
 
             # check if sampled; add attributes if so
             if (isSampled) {
-                attr(ga.data.df, "ga:containsSampledData") <- TRUE
-                attr(ga.data.df, "ga:sampleSize") <- as.numeric(ga.data$sampleSize)
-                attr(ga.data.df, "ga:sampleSpace") <- as.numeric(ga.data$sampleSpace)
+                attr(ga.data.df, "containsSampledData") <- TRUE
+                attr(ga.data.df, "sampleSize") <- as.numeric(ga.data$sampleSize)
+                attr(ga.data.df, "sampleSpace") <- as.numeric(ga.data$sampleSpace)
             } else {
-                attr(ga.data.df, "ga:containsSampledData") <- FALSE
+                attr(ga.data.df, "containsSampledData") <- FALSE
             }
             
             # did not return any results
