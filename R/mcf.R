@@ -114,7 +114,9 @@ rga$methods(
             if (ga.data$containsSampledData == "TRUE") {
                 isSampled <- TRUE
                 if (!walk) {
-                    message("Notice: Data set contains sampled data")
+                    message(sprintf("Notice: Data set sampled from %s sessions (%d%% of all sessions)", 
+                                    format(as.numeric(ga.data$sampleSize), big.mark=",", scientific=FALSE),
+                                    round((as.numeric(ga.data$sampleSize) / as.numeric(ga.data$sampleSpace) * 100))))
                 }
             } else {
                 isSampled <- FALSE
@@ -149,6 +151,15 @@ rga$methods(
             # remove mcf: from column headersView
             ga.headers$name <- sub("mcf:", "", ga.headers$name)
 
+            # check if sampled; add attributes if so
+            if (isSampled) {
+                attr(ga.data.df, "containsSampledData") <- TRUE
+                attr(ga.data.df, "sampleSize") <- as.numeric(ga.data$sampleSize)
+                attr(ga.data.df, "sampleSpace") <- as.numeric(ga.data$sampleSpace)
+            } else {
+                attr(ga.data.df, "containsSampledData") <- FALSE
+            }
+            
             # did not return any results
             if (!inherits(ga.data$rows, "list") && !rbr) {
                 stop(paste("no results:", ga.data$totalResults))

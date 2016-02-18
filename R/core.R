@@ -99,7 +99,7 @@ rga$methods(
                 options(RCurlOptions = list(
                     verbose = FALSE,
                     capath = system.file("CurlSSL", "cacert.pem",
-                                         package = "RCurl"), ssl.verifypeer = FALSE))
+                    package = "RCurl"), ssl.verifypeer = FALSE))
             }
 
             # get data and convert from json to list-format
@@ -120,7 +120,9 @@ rga$methods(
             if (ga.data$containsSampledData == "TRUE") {
                 isSampled <- TRUE
                 if (!walk) {
-                    message("Notice: Data set contains sampled data")
+                    message(sprintf("Notice: Data set sampled from %s sessions (%d%% of all sessions)", 
+                                    format(as.numeric(ga.data$sampleSize), big.mark=",", scientific=FALSE),
+                                    round((as.numeric(ga.data$sampleSize) / as.numeric(ga.data$sampleSpace) * 100))))
                 }
             } else {
                 isSampled <- FALSE
@@ -161,8 +163,8 @@ rga$methods(
             } else if (!inherits(ga.data$rows, "matrix") && rbr) {
                 # return data.frame with NA, if row-by-row setting is true
                 row <- as.data.frame(matrix(NA, ncol = length(ga.headers$name), nrow = 1))
-		colnames(row) <- ga.headers$name
-		return(row)
+                colnames(row) <- ga.headers$name
+                return(row)
             }
 
             # convert to data.frame
@@ -170,6 +172,15 @@ rga$methods(
             # insert column names
             names(ga.data.df) <- ga.headers$name
 
+            # check if sampled; add attributes if so
+            if (isSampled) {
+                attr(ga.data.df, "containsSampledData") <- TRUE
+                attr(ga.data.df, "sampleSize") <- as.numeric(ga.data$sampleSize)
+                attr(ga.data.df, "sampleSpace") <- as.numeric(ga.data$sampleSpace)
+            } else {
+                attr(ga.data.df, "containsSampledData") <- FALSE
+            }
+            
             # find formats
             formats <- ga.headers
 
