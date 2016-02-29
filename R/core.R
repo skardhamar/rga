@@ -250,11 +250,11 @@ rga$methods(
                                   metrics, dimensions, sort, filters, segment, fields, envir,
                                   samplingLevel) {
             # this function will extract data day-by-day (to avoid sampling)
-            walks.max <- ceiling(as.numeric(difftime(end.date, start.date, units = "days")))
+            walks.max <- ceiling(as.numeric(difftime(as.Date(end.date), as.Date(start.date), units = "days")))
             chunk.list <- vector("list", walks.max + 1)
 
             for (i in 0:(walks.max)) {
-                date <- format(as.POSIXct(start.date) + days(i), "%Y-%m-%d")
+                date <- format(as.Date(start.date) + i, "%Y-%m-%d")
 
                 message(paste("Run (", i + 1, "/", walks.max + 1, "): for date ", date, sep = ""))
                 chunk <- .self$getData(ids = ids, start.date = date, end.date = date, date.format = date.format,
