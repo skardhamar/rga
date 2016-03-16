@@ -6,7 +6,7 @@ rga$methods(
                            sort = "", filters = "", segment = "", fields = "",
                            start = 1, max, messages = TRUE,  batch, walk = FALSE,
                            output.raw, output.formats, return.url = FALSE, rbr = FALSE, envir = .GlobalEnv,
-                           samplingLevel = "DEFAULT") {
+                           samplingLevel = "HIGHER_PRECISION") {
 
             if (missing(ids)) {
                 stop("please enter a profile id")
@@ -30,18 +30,14 @@ rga$methods(
                     }
                 } else {
                     if (batch > 10000) {
-                        # as per https://developers.google.com/analytics/devguides/reporting/core/v2/gdataReferenceDataFeed#maxResults
-                        stop("batch size can max be set to 10000")
+                        # as per https://developers.google.com/analytics/devguides/reporting/core/v3/reference#maxResults
+                        stop("batch size can be set to max of 10000")
                     }
                 }
 
-                if (missing(max)) {
-                    adjustMax <- TRUE
-                    # arbitrary target, adjust later
-                    max <- 10000
-                } else {
-                    adjustMax <- FALSE
-                }
+                adjustMax <- TRUE
+                # arbitrary target, adjust later
+                max <- 10000
             }
 
             # ensure that profile id begings with 'ga:'
@@ -143,7 +139,7 @@ rga$methods(
                     if (adjustMax) {
                         max <- ga.data$totalResults
                     }
-                    message(paste("Pulling", max, "observations in batches of", batch))
+                    message(paste("Batch: pulling", max, "observations in batches of", batch))
                     # pass variables to batch-function
                     return(.self$getDataInBatches(total = ga.data$totalResults, max = max, batchSize = batch,
                                                   ids = ids, start.date = start.date, end.date = end.date, date.format = date.format,
@@ -237,11 +233,11 @@ rga$methods(
                     end <- max
                 }
 
-                message(paste("Run (", i + 1, "/", runs.max, "): observations [", start, ";", end, "]. Batch size: ", batchSize, sep = ""))
+                message(paste("Batch: run (", i + 1, "/", runs.max, "), observations [", start, ":", end, "]. Batch size: ", batchSize, sep = ""))
                 chunk <- .self$getData(ids = ids, start.date = start.date, end.date = end.date, metrics = metrics, dimensions = dimensions, sort = sort,
                                        filters = filters, segment = segment, fields = fields, date.format = date.format, envir = envir, messages = FALSE, return.url = FALSE,
                                        batch = FALSE, start = start, max = batchSize, samplingLevel = samplingLevel)
-                message(paste("Received:", nrow(chunk), "observations"))
+                message(paste("Batch: received", nrow(chunk), "observations"))
                 chunk.list[[i + 1]] <- chunk
             }
             return(do.call(rbind, chunk.list, envir = envir))
@@ -256,12 +252,12 @@ rga$methods(
             for (i in 0:(walks.max)) {
                 date <- format(as.Date(start.date) + i, "%Y-%m-%d")
 
-                message(paste("Run (", i + 1, "/", walks.max + 1, "): for date ", date, sep = ""))
+                message(paste("Walk: run (", i + 1, "/", walks.max + 1, ") for date ", date, sep = ""))
                 chunk <- .self$getData(ids = ids, start.date = date, end.date = date, date.format = date.format,
                                        metrics = metrics, dimensions = dimensions, sort = sort, filters = filters,
                                        segment = segment, fields = fields, envir = envir, max = max,
                                        rbr = TRUE, messages = FALSE, return.url = FALSE, batch = batch, samplingLevel = samplingLevel)
-                message(paste("Received:", nrow(chunk), "observations"))
+                message(paste("Walk: received", nrow(chunk), "observations"))
                 chunk.list[[i + 1]] <- chunk
             }
 
