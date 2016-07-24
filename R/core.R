@@ -157,10 +157,8 @@ rga$methods(
             if (!inherits(ga.data$rows, "matrix") && !rbr) {
                 stop(paste("no results:", ga.data$totalResults))
             } else if (!inherits(ga.data$rows, "matrix") && rbr) {
-                # return data.frame with NA, if row-by-row setting is true
-                row <- as.data.frame(matrix(NA, ncol = length(ga.headers$name), nrow = 1))
-                colnames(row) <- ga.headers$name
-                return(row)
+              # If row-by-row is true, return NULL
+              return(NULL)
             }
 
             # convert to data.frame
@@ -237,7 +235,7 @@ rga$methods(
                 chunk <- .self$getData(ids = ids, start.date = start.date, end.date = end.date, metrics = metrics, dimensions = dimensions, sort = sort,
                                        filters = filters, segment = segment, fields = fields, date.format = date.format, envir = envir, messages = FALSE, return.url = FALSE,
                                        batch = FALSE, start = start, max = batchSize, samplingLevel = samplingLevel)
-                message(paste("Batch: received", nrow(chunk), "observations"))
+                message(paste("Batch: received", NROW(chunk), "observations"))
                 chunk.list[[i + 1]] <- chunk
             }
             return(do.call(rbind, chunk.list, envir = envir))
@@ -257,7 +255,7 @@ rga$methods(
                                        metrics = metrics, dimensions = dimensions, sort = sort, filters = filters,
                                        segment = segment, fields = fields, envir = envir, max = max,
                                        rbr = TRUE, messages = FALSE, return.url = FALSE, batch = batch, samplingLevel = samplingLevel)
-                message(paste("Walk: received", nrow(chunk), "observations"))
+                message(paste("Walk: received", NROW(chunk), "observations"))
                 chunk.list[[i + 1]] <- chunk
             }
 
