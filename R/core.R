@@ -116,7 +116,7 @@ rga$methods(
             if (ga.data$containsSampledData == "TRUE") {
                 isSampled <- TRUE
                 if (!walk) {
-                    message(sprintf("Notice: Data set sampled from %s sessions (%d%% of all sessions)", 
+                    message(sprintf("Notice: Data set sampled from %s sessions (%d%% of all sessions)",
                                     format(as.numeric(ga.data$sampleSize), big.mark=",", scientific=FALSE),
                                     round((as.numeric(ga.data$sampleSize) / as.numeric(ga.data$sampleSpace) * 100))))
                 }
@@ -174,7 +174,7 @@ rga$methods(
             } else {
                 attr(ga.data.df, "containsSampledData") <- FALSE
             }
-            
+
             # find formats
             formats <- ga.headers
 
@@ -214,7 +214,7 @@ rga$methods(
             return(ga.data.df)
         },
         getFirstDate = function(ids) {
-            first <- .self$getData(ids, start.date = "2005-01-01", filters = "ga:sessions!=0", max = 1, messages = FALSE)
+            first <- .self$getData(ids, start.date = "2005-01-01", filters = "ga:hits!=0", max = 1, messages = FALSE)
             return(first$date)
         },
         getDataInBatches = function(batchSize, total, ids, start.date, end.date, date.format,
