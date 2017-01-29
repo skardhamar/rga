@@ -22,7 +22,7 @@
 
 .rga.authenticate <- function(client.id, client.secret, code, redirect.uri) {
     opts <- list(verbose = FALSE)
-    raw.response <- POST("https://accounts.google.com/o/oauth2/token",
+    raw.response <- httr::POST("https://accounts.google.com/o/oauth2/token",
                          body = list(
                              code = code,
                              client_id = client.id,
