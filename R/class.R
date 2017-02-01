@@ -60,7 +60,7 @@ rga <- setRefClass("rga",
                            }
                        },
                        refreshToken = function() {
-                           raw.response <- POST("https://accounts.google.com/o/oauth2/token",
+                           raw.response <- httr::POST("https://accounts.google.com/o/oauth2/token",
                                                 body = list(
                                                     refresh_token = .self$token$refresh_token,
                                                     client_id = .self$client.id,
